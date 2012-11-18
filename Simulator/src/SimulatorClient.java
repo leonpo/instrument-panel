@@ -14,7 +14,7 @@ class SimulatorClient
     	
     	// telemetry
     	float AirspeedNeedle, Altimeter_1000_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, 
-    		Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift;
+    		Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading;
     	try {
             Socket s = new Socket("192.168.2.147", TCP_SERVER_PORT);
             int i = 0;
@@ -23,21 +23,22 @@ class SimulatorClient
             	PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(s.getOutputStream())),true);
             	
             	// simulate telemetry            	
-            	AirspeedNeedle = rnd.nextFloat() * 600;
-            	Altimeter_1000_footPtr = rnd.nextFloat() * 10000;
-            	Variometer = rnd.nextFloat() * 12000 - 6000;
-            	TurnNeedle = (rnd.nextFloat() * 2 - 1) * 0.0523f;
-            	Slipball = rnd.nextFloat() * 2 - 1;
-            	CompassHeading = rnd.nextFloat() * 360;
+            	AirspeedNeedle = rnd.nextFloat() * 600f;
+            	Altimeter_1000_footPtr = rnd.nextFloat() * 10000f;
+            	Variometer = rnd.nextFloat() * 12000f - 6000f;
+            	TurnNeedle = (rnd.nextFloat() * 2f - 1f) * 0.0523f;
+            	Slipball = rnd.nextFloat() * 2f - 1f;
+            	CompassHeading = rnd.nextFloat() * 360f;
             	Landing_Gear_Handle = rnd.nextFloat();
-            	Manifold_Pressure = rnd.nextFloat() * 75;
+            	Manifold_Pressure = rnd.nextFloat() * 75f;
             	Engine_RPM = rnd.nextFloat() * 4500;
-            	AHorizon_Pitch = (rnd.nextFloat() * 2 - 1) * 3.14f / 3.0f;
-                AHorizon_Bank = (rnd.nextFloat() * 2 - 1) * 3.14f;
-            	AHorizon_PitchShift = (rnd.nextFloat() * 2 - 1) * 10.0f * 3.14f/180.0f;            	
+            	AHorizon_Pitch = (rnd.nextFloat() * 2f - 1f) * 3.14f / 3.0f;
+                AHorizon_Bank = (rnd.nextFloat() * 2f - 1f) * 3.14f;
+            	AHorizon_PitchShift = (rnd.nextFloat() * 2f - 1f) * 10.0f * 3.14f/180.0f;
+            	GyroHeading = rnd.nextFloat() * 2.0f * 3.14f;
             	
-            	String str = String.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f , 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f }\n", 
-            				AirspeedNeedle, Altimeter_1000_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift);
+            	String str = String.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f , 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f }\n", 
+            				AirspeedNeedle, Altimeter_1000_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading);
             	out.println(str);
 	            System.out.println("TcpClient sent: " + str);
 	            Thread.sleep(5000);

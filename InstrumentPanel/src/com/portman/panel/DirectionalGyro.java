@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class Manifold extends View {
+public final class DirectionalGyro extends View {
 
-	private static final String TAG = Manifold.class.getSimpleName();
+	private static final String TAG = DirectionalGyro.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -27,41 +27,31 @@ public final class Manifold extends View {
 	private Paint facePaint;
 	
 	private Paint scalePaint;
-	private Paint scaleGreenPaint;
-	private Paint scaleRedPaint;
-	private RectF scaleRect;
-	
-	private Paint titlePaint;	
-	
-	private Paint handPaint;
 	
 	private Paint backgroundPaint; 
 	// end drawing tools
 	
 	private Bitmap background; // holds the cached static part
 	
-	// scale configuration
-	private static final int totalNicks = 65;
-	private static final float degreesPerNick = 360.0f / totalNicks;	
-	private static final int centerValue = 30; // the one in the top center (12 o'clock)
-	private static final int minValue = 10;
-	private static final int maxValue = 75;
+	// scale configuration	
+	private static final float minGyroHeading = 0.0f;
+	private static final float maxGyroHeading = 2.0f * (float) Math.PI;
 	
 	// hand dynamics
-	private boolean handInitialized = false;
-	private float handPosition = centerValue;
-		
-	public Manifold(Context context) {
+	private boolean needleInitialized = true;
+	private float gyroHeading = 0f;
+	
+	public DirectionalGyro(Context context) {
 		super(context);
 		init();
 	}
 
-	public Manifold(Context context, AttributeSet attrs) {
+	public DirectionalGyro(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public Manifold(Context context, AttributeSet attrs, int defStyle) {
+	public DirectionalGyro(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -72,8 +62,8 @@ public final class Manifold extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		handInitialized = bundle.getBoolean("handInitialized");
-		handPosition = bundle.getFloat("handPosition");
+		needleInitialized = bundle.getBoolean("needleInitialized");
+		gyroHeading = bundle.getFloat("gyroHeading");
 	}
 
 	@Override
@@ -82,17 +72,13 @@ public final class Manifold extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putBoolean("handInitialized", handInitialized);
-		state.putFloat("handPosition", handPosition);
+		state.putBoolean("needleInitialized", needleInitialized);
+		state.putFloat("gyroHeading", gyroHeading);		
 		return state;
 	}
 
 	private void init() {
 		initDrawingTools();
-	}
-
-	private String getTitle() {
-		return "MANIFOLD";
 	}
 
 	private void initDrawingTools() {
@@ -118,44 +104,14 @@ public final class Manifold extends View {
 		facePaint.setColor(Color.BLACK);
 
 		scalePaint = new Paint();
-		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		scalePaint.setStyle(Paint.Style.STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(0.005f);
-		scalePaint.setAntiAlias(true);
+		scalePaint.setStrokeWidth(0.02f);
+		scalePaint.setAntiAlias(true);	
 		
-		scalePaint.setTextSize(0.08f);
+		scalePaint.setTextSize(0.2f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
-		
-		scaleGreenPaint = new Paint();
-		scaleGreenPaint.setStyle(Paint.Style.STROKE);
-		scaleGreenPaint.setColor(Color.GREEN);
-		scaleGreenPaint.setStrokeWidth(0.03f);
-		scaleGreenPaint.setAntiAlias(true);
-		
-		scaleRedPaint = new Paint();
-		scaleRedPaint.setStyle(Paint.Style.STROKE);
-		scaleRedPaint.setColor(Color.RED);
-		scaleRedPaint.setStrokeWidth(0.02f);
-		scaleRedPaint.setAntiAlias(true);
-		
-		float scalePosition = 0.03f;
-		scaleRect = new RectF();
-		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
-					  faceRect.right - scalePosition, faceRect.bottom - scalePosition);
-
-		titlePaint = new Paint();
-		titlePaint.setColor(Color.WHITE);
-		titlePaint.setAntiAlias(true);
-		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
-		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(0.08f);
-
-		handPaint = new Paint();
-		handPaint.setAntiAlias(true);
-		handPaint.setColor(Color.WHITE);
-		handPaint.setStrokeWidth(0.02f);
-		handPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -204,70 +160,34 @@ public final class Manifold extends View {
 		canvas.drawOval(faceRect, facePaint);
 		// draw the inner rim circle
 		canvas.drawOval(faceRect, rimCirclePaint);
-		// draw the rim shadow inside the face
-		//canvas.drawOval(faceRect, rimShadowPaint);
 	}
 
 	private void drawScale(Canvas canvas) {
-		// draw green range 26-36
-		canvas.drawArc(scaleRect, 192, 57, false, scaleGreenPaint);
-
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		for (int i = 0; i < totalNicks; ++i) {
-			float y1 = scaleRect.top;
-			float y2 = y1 + 0.030f;
-			
-			canvas.drawLine(0.5f, y1, 0.5f, y2, scalePaint);
-			
-			if (i % 5 == 0) { // every 5
-				canvas.drawLine(0.5f, y1, 0.5f, y2 + 0.01f, scalePaint);
-				
-				int value = nickToValue(i);
-				if (value >= minValue && value <= maxValue) {
-					String valueString = Integer.toString(value);
-					
-					// draw vertical text
-					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick * i, 0.5f, y2 + 0.08f);
-					canvas.drawText(valueString, 0.5f, y2 + 0.1f, scalePaint);
-					canvas.restore();
-				}
-			}
-			
-			// draw red line at 61 inHg
-			if (i == 21)
-				canvas.drawLine(0.5f, y1, 0.5f, y2 + 0.05f, scaleRedPaint);
-			
-			canvas.rotate(degreesPerNick, 0.5f, 0.5f);
-		}
-		canvas.restore();		
+//		for (int i = -36; i < 72; ++i) {
+//			float x1 = scaleRect.top;
+//			
+//			if (i % 3 == 0) { // big tick
+//				canvas.drawLine(0.0f, 0.0f, 0.0f, 0.1f, scalePaint);
+//				
+//			}
+//			else { //small tick
+//				canvas.drawLine(0.0f, 0.0f, 0.0f, 0.1f, scalePaint);
+//				
+//			}
+//			canvas.translate(0.01f, 0.0f);
+//		}
+		canvas.restore();	
 	}
-	
-	private int nickToValue(int nick) {
-		if ((nick >= totalNicks / 2))
-			nick = nick - totalNicks;
-		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		int shiftedValue = rawValue + centerValue;
-		return shiftedValue;
-	}
-	
-	private float valueToAngle(float value) {
-		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - centerValue - minValue) / valuePerNick;
-	}
-	
-	private void drawTitle(Canvas canvas) {
-		String title = getTitle();
-		canvas.drawText(title, 0.5f, 0.4f, titlePaint);
-	}
-	
-
-	private void drawHand(Canvas canvas) {
-		if (handInitialized) {
-			float handAngle = valueToAngle(handPosition);
+		
+	private void drawNeedle(Canvas canvas) {
+		if (needleInitialized) {
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			canvas.rotate(handAngle, 0.5f, 0.5f);
-			canvas.drawLine(0.5f, 0.5f, 0.5f, 0.1f, handPaint);
+			
+			//String valueString = Integer.toString((int) Math.toDegrees(gyroHeading));
+			
+			//canvas.drawText(valueString, 0.5f, 0.5f, scalePaint);			
+			
 			canvas.restore();
 		}
 	}
@@ -288,7 +208,7 @@ public final class Manifold extends View {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.scale(scale, scale);
 
-		drawHand(canvas);
+		drawNeedle(canvas);
 		
 		canvas.restore();
 	}
@@ -313,18 +233,18 @@ public final class Manifold extends View {
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
-		drawScale(backgroundCanvas);
-		drawTitle(backgroundCanvas);		
+		drawScale(backgroundCanvas);		
 	}
 		
-	public void setManifold(float value) {
-		if (value < minValue) {
-			value = minValue;
-		} else if (value > maxValue) {
-			value = maxValue;
+	public void setGyroHeading(float value) {
+		if (gyroHeading < minGyroHeading) {
+			value = minGyroHeading;
+		} else if (value > maxGyroHeading) {
+			value = maxGyroHeading;
 		}
-		handPosition = value;
-		handInitialized = true;
+		this.gyroHeading = value;
+		
+		needleInitialized = true;
 		invalidate();
 	}
 }

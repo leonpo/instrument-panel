@@ -91,7 +91,7 @@ public final class Airspeed extends View {
 	}
 
 	private String getTitle() {
-		return "Airspeed";
+		return "M.P.H.";
 	}
 
 	private void initDrawingTools() {
@@ -142,8 +142,7 @@ public final class Airspeed extends View {
 		titlePaint.setAntiAlias(true);
 		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
 		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(0.05f);
-		titlePaint.setTextScaleX(0.8f);
+		titlePaint.setTextSize(0.08f);
 
 		handPaint = new Paint();
 		handPaint.setAntiAlias(true);
@@ -249,7 +248,7 @@ public final class Airspeed extends View {
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 0.5f, 0.5f, titlePaint);
+		canvas.drawText(title, 0.5f, 0.6f, titlePaint);
 	}
 	
 
@@ -308,7 +307,7 @@ public final class Airspeed extends View {
 		drawTitle(backgroundCanvas);		
 	}
 		
-	public void setHandTarget(float value) {
+	public void setAirspeed(float value) {
 		if (value < minValue) {
 			value = minValue;
 		} else if (value > maxValue) {

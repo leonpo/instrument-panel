@@ -123,7 +123,7 @@ public final class RPM extends View {
 		scalePaint.setStrokeWidth(0.005f);
 		scalePaint.setAntiAlias(true);
 		
-		scalePaint.setTextSize(0.1f);
+		scalePaint.setTextSize(0.08f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
 		
@@ -149,8 +149,7 @@ public final class RPM extends View {
 		titlePaint.setAntiAlias(true);
 		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
 		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(0.05f);
-		titlePaint.setTextScaleX(0.8f);
+		titlePaint.setTextSize(0.08f);
 
 		handPaint = new Paint();
 		handPaint.setAntiAlias(true);
@@ -257,7 +256,7 @@ public final class RPM extends View {
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 0.5f, 0.5f, titlePaint);
+		canvas.drawText(title, 0.5f, 0.4f, titlePaint);
 	}
 	
 
@@ -317,7 +316,7 @@ public final class RPM extends View {
 	}
 
 		
-	public void setHandTarget(float value) {
+	public void setRPM(float value) {
 		if (value < minValue) {
 			value = minValue;
 		} else if (value > maxValue) {

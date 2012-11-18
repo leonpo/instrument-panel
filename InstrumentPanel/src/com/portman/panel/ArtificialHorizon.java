@@ -36,10 +36,10 @@ public final class ArtificialHorizon extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration	
-	private static final float minPitchValue = -3.14f / 3.0f;
-	private static final float maxPitchValue = 3.14f / 3.0f;
-	private static final float minBankValue = -3.14f;
-	private static final float maxBankValue = 3.14f;
+	private static final float minPitchValue = (float) -Math.PI / 3.0f;
+	private static final float maxPitchValue = (float) Math.PI / 3.0f;
+	private static final float minBankValue = (float) -Math.PI;
+	private static final float maxBankValue = (float) Math.PI;
 	
 	// hand dynamics
 	private boolean needleInitialized = false;
@@ -196,6 +196,7 @@ public final class ArtificialHorizon extends View {
 		canvas.drawLine(0.25f, 0.5f, 0.4f, 0.5f, scalePaint);
 		canvas.drawLine(0.49f, 0.5f, 0.51f, 0.5f, scalePaint);
 		canvas.drawLine(0.60f, 0.5f, 0.75f, 0.5f, scalePaint);
+		canvas.drawLine(0.45f, 0.6f, 0.55f, 0.6f, scalePaint);
 	}
 		
 	private void drawNeedle(Canvas canvas) {

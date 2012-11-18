@@ -29,6 +29,8 @@ public class PanelActivity extends Activity {
    private static RPM 	   mRPM;
    private static TurnIndicator mTurnIndicator;
    private static ArtificialHorizon mArtificialHorizon;
+   private static DirectionalGyro mDirectionalGyro;
+   private static Variometer  mVariometer;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,8 @@ public class PanelActivity extends Activity {
 	   mRPM		 = (RPM) findViewById(R.id.rpm);
 	   mTurnIndicator = (TurnIndicator) findViewById(R.id.turn_indicator);
 	   mArtificialHorizon = (ArtificialHorizon) findViewById(R.id.artificial_horizon);
+	   mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
+	   mVariometer = (Variometer) findViewById(R.id.variometer);
 	  	 
 	   this.myCommsThread = new Thread(new CommsThread());
 	   this.myCommsThread.start();
@@ -66,13 +70,16 @@ public class PanelActivity extends Activity {
 				   // parse json
 				   JSONObject object = (JSONObject) new JSONTokener(mClientMsg).nextValue();
 				   
-				   mAirspeed.setHandTarget((float)object.getDouble("AirspeedNeedle"));
-				   mAltimeter.setHandTarget((float)object.getDouble("Altimeter_1000_footPtr")/1000f);
-				   mManifold.setHandTarget((float)object.getDouble("Manifold_Pressure"));
-				   mRPM.setHandTarget((float)object.getDouble("Engine_RPM")/100f);
+				   mAirspeed.setAirspeed((float)object.getDouble("AirspeedNeedle"));
+				   mAltimeter.setAltimeter((float)object.getDouble("Altimeter_1000_footPtr")/1000f);
+				   mManifold.setManifold((float)object.getDouble("Manifold_Pressure"));
+				   mRPM.setRPM((float)object.getDouble("Engine_RPM")/100f);
 				   mTurnIndicator.setTurnNeedlePosition((float)object.getDouble("TurnNeedle"));
 				   mTurnIndicator.setSlipballPosition((float)object.getDouble("Slipball"));
 				   mArtificialHorizon.setPitchAndBank((float)object.getDouble("AHorizon_Pitch"), (float)object.getDouble("AHorizon_Bank"));
+				   mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
+				   mVariometer.setVariometer((float)object.getDouble("Variometer")/1000);
+				   
 			   } catch (JSONException e) {
 				   // TODO Auto-generated catch block
 				   e.printStackTrace();

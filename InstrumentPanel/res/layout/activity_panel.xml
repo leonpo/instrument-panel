@@ -9,7 +9,7 @@
 	<LinearLayout android:orientation="vertical" 
 	    android:layout_height="fill_parent" 
 	    android:layout_width="fill_parent"
-	    android:layout_weight="33" 
+	    android:layout_weight="25" 
 	    android:gravity="center">
 		<com.portman.panel.Airspeed android:id="@+id/airspeed"
 		    android:layout_weight="50"  
@@ -23,9 +23,9 @@
 	<LinearLayout android:orientation="vertical" 
 	    android:layout_height="fill_parent" 
 	    android:layout_width="fill_parent"
-	    android:layout_weight="33" 
+	    android:layout_weight="25" 
 	    android:gravity="center">
-		<com.portman.panel.ArtificialHorizon  android:id="@+id/artificial_horizon"
+		<com.portman.panel.DirectionalGyro  android:id="@+id/directional_gyro"
 		    android:layout_weight="50"  
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
@@ -37,7 +37,21 @@
 	<LinearLayout android:orientation="vertical" 
 	    android:layout_height="fill_parent" 
 	    android:layout_width="fill_parent"
-	    android:layout_weight="33" 
+	    android:layout_weight="25" 
+	    android:gravity="center">
+		<com.portman.panel.ArtificialHorizon  android:id="@+id/artificial_horizon"
+		    android:layout_weight="50"  
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />
+		<com.portman.panel.Variometer android:id="@+id/variometer"
+		    android:layout_weight="50"  	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />	
+	</LinearLayout>
+	<LinearLayout android:orientation="vertical" 
+	    android:layout_height="fill_parent" 
+	    android:layout_width="fill_parent"
+	    android:layout_weight="25" 
 	    android:gravity="center">
 		<com.portman.panel.Manifold android:id="@+id/manifold"
 		    android:layout_weight="50"  

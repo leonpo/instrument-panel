@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class Manifold extends View {
+public final class Variometer extends View {
 
-	private static final String TAG = Manifold.class.getSimpleName();
+	private static final String TAG = Variometer.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -26,9 +26,7 @@ public final class Manifold extends View {
 	private RectF faceRect;
 	private Paint facePaint;
 	
-	private Paint scalePaint;
-	private Paint scaleGreenPaint;
-	private Paint scaleRedPaint;
+	private Paint scalePaint;	
 	private RectF scaleRect;
 	
 	private Paint titlePaint;	
@@ -41,27 +39,26 @@ public final class Manifold extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 65;
+	private static final int totalNicks = 24;
 	private static final float degreesPerNick = 360.0f / totalNicks;	
-	private static final int centerValue = 30; // the one in the top center (12 o'clock)
-	private static final int minValue = 10;
-	private static final int maxValue = 75;
+	private static final float minValue = -6.0f;
+	private static final float maxValue = 6.0f;
 	
 	// hand dynamics
 	private boolean handInitialized = false;
-	private float handPosition = centerValue;
-		
-	public Manifold(Context context) {
+	private float handPosition = 0f;
+	
+	public Variometer(Context context) {
 		super(context);
 		init();
 	}
 
-	public Manifold(Context context, AttributeSet attrs) {
+	public Variometer(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public Manifold(Context context, AttributeSet attrs, int defStyle) {
+	public Variometer(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -92,7 +89,7 @@ public final class Manifold extends View {
 	}
 
 	private String getTitle() {
-		return "MANIFOLD";
+		return "CLIMB";
 	}
 
 	private void initDrawingTools() {
@@ -126,18 +123,6 @@ public final class Manifold extends View {
 		scalePaint.setTextSize(0.08f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
-		
-		scaleGreenPaint = new Paint();
-		scaleGreenPaint.setStyle(Paint.Style.STROKE);
-		scaleGreenPaint.setColor(Color.GREEN);
-		scaleGreenPaint.setStrokeWidth(0.03f);
-		scaleGreenPaint.setAntiAlias(true);
-		
-		scaleRedPaint = new Paint();
-		scaleRedPaint.setStyle(Paint.Style.STROKE);
-		scaleRedPaint.setColor(Color.RED);
-		scaleRedPaint.setStrokeWidth(0.02f);
-		scaleRedPaint.setAntiAlias(true);
 		
 		float scalePosition = 0.03f;
 		scaleRect = new RectF();
@@ -204,56 +189,48 @@ public final class Manifold extends View {
 		canvas.drawOval(faceRect, facePaint);
 		// draw the inner rim circle
 		canvas.drawOval(faceRect, rimCirclePaint);
-		// draw the rim shadow inside the face
-		//canvas.drawOval(faceRect, rimShadowPaint);
 	}
 
 	private void drawScale(Canvas canvas) {
-		// draw green range 26-36
-		canvas.drawArc(scaleRect, 192, 57, false, scaleGreenPaint);
-
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.drawText("UP", 0.3f, 0.45f, scalePaint);
+		canvas.drawText("DOWN", 0.35f, 0.6f, scalePaint);
+		
+		canvas.rotate(90, 0.5f, 0.5f);
 		for (int i = 0; i < totalNicks; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 0.030f;
 			
 			canvas.drawLine(0.5f, y1, 0.5f, y2, scalePaint);
 			
-			if (i % 5 == 0) { // every 5
+			if (i % 2 == 0) { // every 2
 				canvas.drawLine(0.5f, y1, 0.5f, y2 + 0.01f, scalePaint);
 				
-				int value = nickToValue(i);
+				float value = nickToValue(i);
 				if (value >= minValue && value <= maxValue) {
-					String valueString = Integer.toString(value);
+					String valueString = Integer.toString(Math.abs((int)value));
 					
 					// draw vertical text
 					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick * i, 0.5f, y2 + 0.08f);
+					canvas.rotate(- degreesPerNick * i - 90, 0.5f, y2 + 0.08f);
 					canvas.drawText(valueString, 0.5f, y2 + 0.1f, scalePaint);
 					canvas.restore();
 				}
 			}
-			
-			// draw red line at 61 inHg
-			if (i == 21)
-				canvas.drawLine(0.5f, y1, 0.5f, y2 + 0.05f, scaleRedPaint);
 			
 			canvas.rotate(degreesPerNick, 0.5f, 0.5f);
 		}
 		canvas.restore();		
 	}
 	
-	private int nickToValue(int nick) {
-		if ((nick >= totalNicks / 2))
-			nick = nick - totalNicks;
-		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		int shiftedValue = rawValue + centerValue;
+	private float nickToValue(int nick) {
+		float shiftedValue =  minValue + nick * (maxValue - minValue) / totalNicks;
 		return shiftedValue;
 	}
 	
 	private float valueToAngle(float value) {
 		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - centerValue - minValue) / valuePerNick;
+		return 90 + degreesPerNick * (value - 0f - minValue) / valuePerNick;
 	}
 	
 	private void drawTitle(Canvas canvas) {
@@ -316,8 +293,9 @@ public final class Manifold extends View {
 		drawScale(backgroundCanvas);
 		drawTitle(backgroundCanvas);		
 	}
+
 		
-	public void setManifold(float value) {
+	public void setVariometer(float value) {
 		if (value < minValue) {
 			value = minValue;
 		} else if (value > maxValue) {
