@@ -24,6 +24,8 @@ public final class TurnIndicator extends View {
 	
 	private RectF faceRect;
 	private Paint facePaint;
+	
+	private Paint scalePaint;
 		
 	private Paint turnNeedlePaint;
 	private Paint slipballPaint;
@@ -111,9 +113,15 @@ public final class TurnIndicator extends View {
 		facePaint.setStyle(Paint.Style.FILL);
 		facePaint.setColor(Color.BLACK);
 		
+		scalePaint = new Paint();
+		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		scalePaint.setColor(Color.WHITE);
+		scalePaint.setStrokeWidth(0.02f);
+		scalePaint.setAntiAlias(true);	
+		
 		turnNeedlePaint = new Paint();
 		turnNeedlePaint.setColor(Color.WHITE);
-		turnNeedlePaint.setStrokeWidth(0.02f);
+		turnNeedlePaint.setStrokeWidth(0.05f);
 		turnNeedlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		turnNeedlePaint.setAntiAlias(true);
 		
@@ -172,12 +180,23 @@ public final class TurnIndicator extends View {
 		canvas.drawOval(faceRect, rimCirclePaint);
 	}
 	
+	private void drawScale(Canvas canvas) {		
+		// draw turn triangle
+		canvas.drawLine(0.5f, 0.2f, 0.45f, 0.1f, scalePaint);
+		canvas.drawLine(0.5f, 0.2f, 0.55f, 0.1f, scalePaint);
+		canvas.drawLine(0.45f, 0.1f, 0.55f, 0.1f, scalePaint);
+		
+		// draw gate
+		canvas.drawLine(0.4f, 0.6f, 0.4f, 0.8f, scalePaint);
+		canvas.drawLine(0.6f, 0.6f, 0.6f, 0.8f, scalePaint);
+	}
+	
 	private void drawTurnNeedle(Canvas canvas) {
 		if (turnNeedleInitialized) {
 			float turnNeedleAngle = (float) Math.toDegrees(turnNeedlePosition)*5;
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
 			canvas.rotate(turnNeedleAngle, 0.5f, 0.9f);
-			canvas.drawLine(0.5f, 0.9f, 0.5f, 0.2f, turnNeedlePaint);
+			canvas.drawLine(0.5f, 0.6f, 0.5f, 0.2f, turnNeedlePaint);
 			canvas.restore();
 		}
 	}
@@ -186,10 +205,6 @@ public final class TurnIndicator extends View {
 		if (slipballInitialized) {
 			float slipballTranslate = slipballPosition*0.3f;
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			
-			// draw gate
-			canvas.drawLine(0.4f, 0.6f, 0.4f, 0.8f, slipballPaint);
-			canvas.drawLine(0.6f, 0.6f, 0.6f, 0.8f, slipballPaint);
 			
 			// draw slipball
 			canvas.translate(slipballTranslate, 0.0f);
@@ -241,7 +256,8 @@ public final class TurnIndicator extends View {
 		backgroundCanvas.scale(scale, scale);
 		
 		drawRim(backgroundCanvas);
-		drawFace(backgroundCanvas);		
+		drawFace(backgroundCanvas);
+		drawScale(backgroundCanvas);
 	}
 		
 	public void setTurnNeedlePosition(float value) {

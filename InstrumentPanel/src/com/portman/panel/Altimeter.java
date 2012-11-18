@@ -141,7 +141,7 @@ public final class Altimeter extends View {
 		handPaint = new Paint();
 		handPaint.setAntiAlias(true);
 		handPaint.setColor(Color.WHITE);
-		handPaint.setStrokeWidth(0.02f);
+		handPaint.setStrokeWidth(0.05f);
 		handPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
 		
 		backgroundPaint = new Paint();
@@ -247,7 +247,7 @@ public final class Altimeter extends View {
 			float handAngle = valueToAngle(handPosition);
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
 			canvas.rotate(handAngle, 0.5f, 0.5f);
-			canvas.drawLine(0.5f, 0.5f, 0.5f, 0.1f, handPaint);
+			canvas.drawLine(0.5f, 0.5f, 0.5f, 0.25f, handPaint);
 			canvas.restore();
 		}
 	}

@@ -201,9 +201,13 @@ public final class ArtificialHorizon extends View {
 	private void drawNeedle(Canvas canvas) {
 		if (needleInitialized) {
 			float bankAngle = (float) Math.toDegrees(bank);
-			float pitchShift = pitch;
+			float pitchShift = -pitch/2.0f;
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
 			canvas.rotate(bankAngle, 0.5f, 0.5f);
+			// draw bank needle
+			canvas.drawLine(0.5f, 0.15f, 0.5f, 0.25f, needlePaint);
+			
+			// draw horizon
 			canvas.translate(0.0f, pitchShift);
 			canvas.drawLine(0.1f, 0.5f, 0.9f, 0.5f, needlePaint);
 			canvas.restore();
