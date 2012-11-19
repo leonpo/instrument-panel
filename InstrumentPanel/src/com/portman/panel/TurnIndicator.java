@@ -42,9 +42,9 @@ public final class TurnIndicator extends View {
 	private static final float maxSlipballValue = 1.0f;	
 	
 	//hands
-	private boolean turnNeedleInitialized = false;
+	private boolean turnNeedleInitialized = true;
 	private float turnNeedlePosition = 0;
-	private boolean slipballInitialized = false;
+	private boolean slipballInitialized = true;
 	private float slipballPosition = 0;
 	
 	public TurnIndicator(Context context) {
@@ -92,7 +92,7 @@ public final class TurnIndicator extends View {
 	}
 
 	private void initDrawingTools() {
-		rimRect = new RectF(0.01f, 0.01f, 0.99f, 0.99f);
+		rimRect = new RectF(1f, 1f, 99f, 99f);
 
 		rimPaint = new Paint();
 		rimPaint.setColor(Color.BLACK);
@@ -101,10 +101,10 @@ public final class TurnIndicator extends View {
 		rimCirclePaint = new Paint();
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(0.005f);
+		rimCirclePaint.setStrokeWidth(0.5f);
 		rimCirclePaint.setAntiAlias(true);
 
-		float rimSize = 0.02f;
+		float rimSize = 2f;
 		faceRect = new RectF();
 		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize, 
 			     rimRect.right - rimSize, rimRect.bottom - rimSize);
@@ -116,18 +116,18 @@ public final class TurnIndicator extends View {
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(0.02f);
+		scalePaint.setStrokeWidth(2f);
 		scalePaint.setAntiAlias(true);	
 		
 		turnNeedlePaint = new Paint();
 		turnNeedlePaint.setColor(Color.WHITE);
-		turnNeedlePaint.setStrokeWidth(0.05f);
+		turnNeedlePaint.setStrokeWidth(5f);
 		turnNeedlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		turnNeedlePaint.setAntiAlias(true);
 		
 		slipballPaint = new Paint();
 		slipballPaint.setColor(Color.WHITE);
-		slipballPaint.setStrokeWidth(0.02f);
+		slipballPaint.setStrokeWidth(2f);
 		slipballPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		slipballPaint.setAntiAlias(true);
 		
@@ -182,34 +182,33 @@ public final class TurnIndicator extends View {
 	
 	private void drawScale(Canvas canvas) {		
 		// draw turn triangle
-		canvas.drawLine(0.5f, 0.2f, 0.45f, 0.1f, scalePaint);
-		canvas.drawLine(0.5f, 0.2f, 0.55f, 0.1f, scalePaint);
-		canvas.drawLine(0.45f, 0.1f, 0.55f, 0.1f, scalePaint);
+		canvas.drawLine(50f, 20f, 45f, 10f, scalePaint);
+		canvas.drawLine(50f, 20f, 55f, 10f, scalePaint);
+		canvas.drawLine(45f, 10f, 55f, 10f, scalePaint);
 		
 		// draw gate
-		canvas.drawLine(0.4f, 0.6f, 0.4f, 0.8f, scalePaint);
-		canvas.drawLine(0.6f, 0.6f, 0.6f, 0.8f, scalePaint);
+		canvas.drawLine(40f, 60f, 40f, 80f, scalePaint);
+		canvas.drawLine(60f, 60f, 60f, 80f, scalePaint);
 	}
 	
 	private void drawTurnNeedle(Canvas canvas) {
 		if (turnNeedleInitialized) {
 			float turnNeedleAngle = (float) Math.toDegrees(turnNeedlePosition)*5;
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			canvas.rotate(turnNeedleAngle, 0.5f, 0.9f);
-			canvas.drawLine(0.5f, 0.6f, 0.5f, 0.2f, turnNeedlePaint);
+			canvas.rotate(turnNeedleAngle, 50f, 90f);
+			canvas.drawLine(50f, 60f, 50f, 20f, turnNeedlePaint);
 			canvas.restore();
 		}
 	}
 	
 	private void drawSlipball(Canvas canvas) {
 		if (slipballInitialized) {
-			float slipballTranslate = slipballPosition*0.3f;
+			float slipballTranslate = slipballPosition * 30f;
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
 			
 			// draw slipball
 			canvas.translate(slipballTranslate, 0.0f);
-			canvas.scale(0.01f, 0.01f); // for drawing circle, does not work with scale 1.0
-			canvas.drawCircle(50.0f, 70.0f, 10f, slipballPaint);
+			canvas.drawCircle(50f, 70f, 10f, slipballPaint);
 			
 			canvas.restore();
 		}
@@ -229,7 +228,7 @@ public final class TurnIndicator extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale, scale);
+		canvas.scale(scale / 100f, scale / 100f);
 
 		drawSlipball(canvas);
 		drawTurnNeedle(canvas);
@@ -253,7 +252,7 @@ public final class TurnIndicator extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale, scale);
+		backgroundCanvas.scale(scale / 100f, scale / 100f);
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);

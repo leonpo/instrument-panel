@@ -42,7 +42,7 @@ public final class ArtificialHorizon extends View {
 	private static final float maxBankValue = (float) Math.PI;
 	
 	// hand dynamics
-	private boolean needleInitialized = false;
+	private boolean needleInitialized = true;
 	private float pitch = 0.0f;
 	private float bank = 0.0f;
 	
@@ -89,7 +89,7 @@ public final class ArtificialHorizon extends View {
 	}
 
 	private void initDrawingTools() {
-		rimRect = new RectF(0.01f, 0.01f, 0.99f, 0.99f);
+		rimRect = new RectF(1f, 1f, 99f, 99f);
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
@@ -99,9 +99,9 @@ public final class ArtificialHorizon extends View {
 		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(0.005f);
+		rimCirclePaint.setStrokeWidth(0.5f);
 
-		float rimSize = 0.02f;
+		float rimSize = 2f;
 		faceRect = new RectF();
 		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize, 
 			     rimRect.right - rimSize, rimRect.bottom - rimSize);
@@ -113,10 +113,10 @@ public final class ArtificialHorizon extends View {
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(0.02f);
+		scalePaint.setStrokeWidth(2f);
 		scalePaint.setAntiAlias(true);	
 		
-		float scalePosition = 0.03f;
+		float scalePosition = 3f;
 		scaleRect = new RectF();
 		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
 					  faceRect.right - scalePosition, faceRect.bottom - scalePosition);
@@ -124,7 +124,7 @@ public final class ArtificialHorizon extends View {
 		needlePaint = new Paint();
 		needlePaint.setAntiAlias(true);
 		needlePaint.setColor(Color.WHITE);
-		needlePaint.setStrokeWidth(0.02f);
+		needlePaint.setStrokeWidth(2f);
 		needlePaint.setStyle(Paint.Style.FILL_AND_STROKE);	
 		
 		backgroundPaint = new Paint();
@@ -178,39 +178,39 @@ public final class ArtificialHorizon extends View {
 
 	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(-90, 0.5f, 0.5f);
+		canvas.rotate(-90, 50f, 50f);
 		for (int i = 0; i < 7; ++i) {
 			float y1 = scaleRect.top;
-			float y2 = y1 + 0.030f;
+			float y2 = y1 + 3f;
 			
 			if (i % 3 == 0) // big tick
-				canvas.drawLine(0.5f, y1, 0.5f, y2 + 0.05f, scalePaint);
+				canvas.drawLine(50f, y1, 50f, y2 + 5f, scalePaint);
 			else  //small tick
-				canvas.drawLine(0.5f, y1, 0.5f, y2, scalePaint);
+				canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			canvas.rotate(30, 0.5f, 0.5f);
+			canvas.rotate(30, 50f, 50f);
 		}
 		canvas.restore();	
 		
 		// draw plane symbol
-		canvas.drawLine(0.25f, 0.5f, 0.4f, 0.5f, scalePaint);
-		canvas.drawLine(0.49f, 0.5f, 0.51f, 0.5f, scalePaint);
-		canvas.drawLine(0.60f, 0.5f, 0.75f, 0.5f, scalePaint);
-		canvas.drawLine(0.45f, 0.6f, 0.55f, 0.6f, scalePaint);
+		canvas.drawLine(25f, 50f, 40f, 50f, scalePaint);
+		canvas.drawLine(49f, 50f, 51f, 50f, scalePaint);
+		canvas.drawLine(60f, 50f, 75f, 50f, scalePaint);
+		canvas.drawLine(45f, 60f, 55f, 60f, scalePaint);
 	}
 		
 	private void drawNeedle(Canvas canvas) {
 		if (needleInitialized) {
 			float bankAngle = (float) Math.toDegrees(bank);
-			float pitchShift = -pitch/2.0f;
+			float pitchShift = -pitch * 100f / 2f;
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			canvas.rotate(bankAngle, 0.5f, 0.5f);
+			canvas.rotate(bankAngle, 50f, 50f);
 			// draw bank needle
-			canvas.drawLine(0.5f, 0.15f, 0.5f, 0.25f, needlePaint);
+			canvas.drawLine(50f, 15f, 50f, 25f, needlePaint);
 			
 			// draw horizon
 			canvas.translate(0.0f, pitchShift);
-			canvas.drawLine(0.1f, 0.5f, 0.9f, 0.5f, needlePaint);
+			canvas.drawLine(10f, 50f, 90f, 50f, needlePaint);
 			canvas.restore();
 		}
 	}
@@ -229,7 +229,7 @@ public final class ArtificialHorizon extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale, scale);
+		canvas.scale(scale / 100f, scale / 100f);
 
 		drawNeedle(canvas);
 		
@@ -252,7 +252,7 @@ public final class ArtificialHorizon extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale, scale);
+		backgroundCanvas.scale(scale / 100f, scale / 100f);  // 0 - 100 coordinates
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);

@@ -5,18 +5,17 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:keepScreenOn="true"
-    android:gravity="center">
+    android:gravity="center" 
+    android:baselineAligned="false">
 	<LinearLayout android:orientation="vertical" 
 	    android:layout_height="fill_parent" 
 	    android:layout_width="fill_parent"
 	    android:layout_weight="25" 
 	    android:gravity="center">
 		<com.portman.panel.Airspeed android:id="@+id/airspeed"
-		    android:layout_weight="50"  
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
-		<com.portman.panel.Altimeter android:id="@+id/altimeter"
-		    android:layout_weight="50"  
+		<com.portman.panel.Altimeter android:id="@+id/altimeter" 
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
 	</LinearLayout>
@@ -26,11 +25,9 @@
 	    android:layout_weight="25" 
 	    android:gravity="center">
 		<com.portman.panel.DirectionalGyro  android:id="@+id/directional_gyro"
-		    android:layout_weight="50"  
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
-		<com.portman.panel.TurnIndicator android:id="@+id/turn_indicator"
-		    android:layout_weight="50"  	   
+		<com.portman.panel.TurnIndicator android:id="@+id/turn_indicator" 	   
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />	
 	</LinearLayout>
@@ -40,11 +37,9 @@
 	    android:layout_weight="25" 
 	    android:gravity="center">
 		<com.portman.panel.ArtificialHorizon  android:id="@+id/artificial_horizon"
-		    android:layout_weight="50"  
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
-		<com.portman.panel.Variometer android:id="@+id/variometer"
-		    android:layout_weight="50"  	   
+		<com.portman.panel.Variometer android:id="@+id/variometer"	   
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />	
 	</LinearLayout>
@@ -53,12 +48,10 @@
 	    android:layout_width="fill_parent"
 	    android:layout_weight="25" 
 	    android:gravity="center">
-		<com.portman.panel.Manifold android:id="@+id/manifold"
-		    android:layout_weight="50"  
+		<com.portman.panel.Manifold android:id="@+id/manifold" 
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
-		<com.portman.panel.RPM 		android:id="@+id/rpm"
-		    android:layout_weight="50"  	   
+		<com.portman.panel.RPM 		android:id="@+id/rpm"	   
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />	
 	</LinearLayout>

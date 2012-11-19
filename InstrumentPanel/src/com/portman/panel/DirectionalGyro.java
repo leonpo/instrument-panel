@@ -82,7 +82,7 @@ public final class DirectionalGyro extends View {
 	}
 
 	private void initDrawingTools() {
-		rimRect = new RectF(0.01f, 0.01f, 0.99f, 0.99f);
+		rimRect = new RectF(1f, 1f, 99f, 99f);
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
@@ -92,9 +92,9 @@ public final class DirectionalGyro extends View {
 		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(0.005f);
+		rimCirclePaint.setStrokeWidth(0.5f);
 
-		float rimSize = 0.02f;
+		float rimSize = 2f;
 		faceRect = new RectF();
 		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize, 
 			     rimRect.right - rimSize, rimRect.bottom - rimSize);
@@ -106,10 +106,10 @@ public final class DirectionalGyro extends View {
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(0.02f);
+		scalePaint.setStrokeWidth(2f);
 		scalePaint.setAntiAlias(true);	
 		
-		scalePaint.setTextSize(0.2f);
+		scalePaint.setTextSize(15f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
 		
@@ -184,9 +184,9 @@ public final class DirectionalGyro extends View {
 		if (needleInitialized) {
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
 			
-			//String valueString = Integer.toString((int) Math.toDegrees(gyroHeading));
+			String valueString = Integer.toString((int) Math.toDegrees(gyroHeading));
 			
-			//canvas.drawText(valueString, 0.5f, 0.5f, scalePaint);			
+			canvas.drawText(valueString, 50f, 55f, scalePaint);			
 			
 			canvas.restore();
 		}
@@ -206,7 +206,7 @@ public final class DirectionalGyro extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale, scale);
+		canvas.scale(scale/100f, scale/100f);
 
 		drawNeedle(canvas);
 		
@@ -229,7 +229,7 @@ public final class DirectionalGyro extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale, scale);
+		backgroundCanvas.scale(scale/100f, scale/100f);
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);

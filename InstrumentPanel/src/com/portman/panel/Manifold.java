@@ -48,7 +48,7 @@ public final class Manifold extends View {
 	private static final int maxValue = 75;
 	
 	// hand dynamics
-	private boolean handInitialized = false;
+	private boolean handInitialized = true;
 	private float handPosition = centerValue;
 		
 	public Manifold(Context context) {
@@ -96,7 +96,7 @@ public final class Manifold extends View {
 	}
 
 	private void initDrawingTools() {
-		rimRect = new RectF(0.01f, 0.01f, 0.99f, 0.99f);
+		rimRect = new RectF(1f, 1f, 99f, 99f);
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
@@ -106,9 +106,9 @@ public final class Manifold extends View {
 		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(0.005f);
+		rimCirclePaint.setStrokeWidth(0.5f);
 
-		float rimSize = 0.02f;
+		float rimSize = 2f;
 		faceRect = new RectF();
 		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize, 
 			     rimRect.right - rimSize, rimRect.bottom - rimSize);
@@ -120,26 +120,26 @@ public final class Manifold extends View {
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(0.005f);
+		scalePaint.setStrokeWidth(0.5f);
 		scalePaint.setAntiAlias(true);
 		
-		scalePaint.setTextSize(0.08f);
+		scalePaint.setTextSize(8f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
 		
 		scaleGreenPaint = new Paint();
 		scaleGreenPaint.setStyle(Paint.Style.STROKE);
 		scaleGreenPaint.setColor(Color.GREEN);
-		scaleGreenPaint.setStrokeWidth(0.03f);
+		scaleGreenPaint.setStrokeWidth(3f);
 		scaleGreenPaint.setAntiAlias(true);
 		
 		scaleRedPaint = new Paint();
 		scaleRedPaint.setStyle(Paint.Style.STROKE);
 		scaleRedPaint.setColor(Color.RED);
-		scaleRedPaint.setStrokeWidth(0.02f);
+		scaleRedPaint.setStrokeWidth(2f);
 		scaleRedPaint.setAntiAlias(true);
 		
-		float scalePosition = 0.03f;
+		float scalePosition = 3f;
 		scaleRect = new RectF();
 		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
 					  faceRect.right - scalePosition, faceRect.bottom - scalePosition);
@@ -149,12 +149,12 @@ public final class Manifold extends View {
 		titlePaint.setAntiAlias(true);
 		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
 		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(0.08f);
+		titlePaint.setTextSize(8f);
 
 		handPaint = new Paint();
 		handPaint.setAntiAlias(true);
 		handPaint.setColor(Color.WHITE);
-		handPaint.setStrokeWidth(0.02f);
+		handPaint.setStrokeWidth(2f);
 		handPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
 		
 		backgroundPaint = new Paint();
@@ -204,8 +204,6 @@ public final class Manifold extends View {
 		canvas.drawOval(faceRect, facePaint);
 		// draw the inner rim circle
 		canvas.drawOval(faceRect, rimCirclePaint);
-		// draw the rim shadow inside the face
-		//canvas.drawOval(faceRect, rimShadowPaint);
 	}
 
 	private void drawScale(Canvas canvas) {
@@ -215,12 +213,12 @@ public final class Manifold extends View {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		for (int i = 0; i < totalNicks; ++i) {
 			float y1 = scaleRect.top;
-			float y2 = y1 + 0.030f;
+			float y2 = y1 + 3f;
 			
-			canvas.drawLine(0.5f, y1, 0.5f, y2, scalePaint);
+			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
 			if (i % 5 == 0) { // every 5
-				canvas.drawLine(0.5f, y1, 0.5f, y2 + 0.01f, scalePaint);
+				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
 				int value = nickToValue(i);
 				if (value >= minValue && value <= maxValue) {
@@ -228,17 +226,17 @@ public final class Manifold extends View {
 					
 					// draw vertical text
 					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick * i, 0.5f, y2 + 0.08f);
-					canvas.drawText(valueString, 0.5f, y2 + 0.1f, scalePaint);
+					canvas.rotate(-degreesPerNick * i, 50f, y2 + 8f);
+					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
 					canvas.restore();
 				}
 			}
 			
 			// draw red line at 61 inHg
 			if (i == 21)
-				canvas.drawLine(0.5f, y1, 0.5f, y2 + 0.05f, scaleRedPaint);
+				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
 			
-			canvas.rotate(degreesPerNick, 0.5f, 0.5f);
+			canvas.rotate(degreesPerNick, 50f, 50f);
 		}
 		canvas.restore();		
 	}
@@ -258,7 +256,7 @@ public final class Manifold extends View {
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 0.5f, 0.4f, titlePaint);
+		canvas.drawText(title, 50f, 40f, titlePaint);
 	}
 	
 
@@ -266,8 +264,8 @@ public final class Manifold extends View {
 		if (handInitialized) {
 			float handAngle = valueToAngle(handPosition);
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			canvas.rotate(handAngle, 0.5f, 0.5f);
-			canvas.drawLine(0.5f, 0.5f, 0.5f, 0.1f, handPaint);
+			canvas.rotate(handAngle, 50f, 50f);
+			canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
 			canvas.restore();
 		}
 	}
@@ -286,7 +284,7 @@ public final class Manifold extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale, scale);
+		canvas.scale(scale / 100f, scale / 100f);
 
 		drawHand(canvas);
 		
@@ -309,7 +307,7 @@ public final class Manifold extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale, scale);
+		backgroundCanvas.scale(scale / 100f, scale / 100f);
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
