@@ -46,7 +46,7 @@ public final class Altimeter extends View {
 	private static final int maxValue = 10;
 	
 	// hand dynamics
-	private boolean handInitialized = true;
+	private boolean handInitialized = false;
 	private float handPosition = centerValue;
 	
 	public Altimeter(Context context) {

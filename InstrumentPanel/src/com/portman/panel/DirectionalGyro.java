@@ -27,11 +27,12 @@ public final class DirectionalGyro extends View {
 	private Paint facePaint;
 	
 	private Paint scalePaint;
+	private Paint scaleLargePaint;
 	
 	private Paint backgroundPaint; 
 	// end drawing tools
 	
-	private Bitmap background; // holds the cached static part
+	private Bitmap background; 			// holds the cached static part
 	
 	// scale configuration	
 	private static final float minGyroHeading = 0.0f;
@@ -39,7 +40,7 @@ public final class DirectionalGyro extends View {
 	
 	// hand dynamics
 	private boolean needleInitialized = true;
-	private float gyroHeading = 0f;
+	private float gyroHeading = (float) Math.PI * 2;
 	
 	public DirectionalGyro(Context context) {
 		super(context);
@@ -82,7 +83,7 @@ public final class DirectionalGyro extends View {
 	}
 
 	private void initDrawingTools() {
-		rimRect = new RectF(1f, 1f, 99f, 99f);
+		rimRect = new RectF(200f, 200f, 800f, 800f);
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
@@ -92,9 +93,9 @@ public final class DirectionalGyro extends View {
 		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(0.5f);
+		rimCirclePaint.setStrokeWidth(5f);
 
-		float rimSize = 2f;
+		float rimSize = 20f;
 		faceRect = new RectF();
 		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize, 
 			     rimRect.right - rimSize, rimRect.bottom - rimSize);
@@ -106,12 +107,22 @@ public final class DirectionalGyro extends View {
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(2f);
+		scalePaint.setStrokeWidth(3f);
 		scalePaint.setAntiAlias(true);	
 		
-		scalePaint.setTextSize(15f);
+		scalePaint.setTextSize(30f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
+		
+		scaleLargePaint = new Paint();
+		scaleLargePaint.setStyle(Paint.Style.STROKE);
+		scaleLargePaint.setColor(Color.WHITE);
+		scaleLargePaint.setStrokeWidth(5f);
+		scaleLargePaint.setAntiAlias(true);	
+		
+		scaleLargePaint.setTextSize(50f);
+		scaleLargePaint.setTypeface(Typeface.SANS_SERIF);
+		scaleLargePaint.setTextAlign(Paint.Align.CENTER);
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -164,19 +175,6 @@ public final class DirectionalGyro extends View {
 
 	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-//		for (int i = -36; i < 72; ++i) {
-//			float x1 = scaleRect.top;
-//			
-//			if (i % 3 == 0) { // big tick
-//				canvas.drawLine(0.0f, 0.0f, 0.0f, 0.1f, scalePaint);
-//				
-//			}
-//			else { //small tick
-//				canvas.drawLine(0.0f, 0.0f, 0.0f, 0.1f, scalePaint);
-//				
-//			}
-//			canvas.translate(0.01f, 0.0f);
-//		}
 		canvas.restore();	
 	}
 		
@@ -184,11 +182,37 @@ public final class DirectionalGyro extends View {
 		if (needleInitialized) {
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
 			
-			String valueString = Integer.toString((int) Math.toDegrees(gyroHeading));
+			canvas.clipRect(300f, 300f, 700f, 550f);
 			
-			canvas.drawText(valueString, 50f, 55f, scalePaint);			
+			int shift =  140 - (int) Math.toDegrees(gyroHeading) * 30 / 5;
+			canvas.translate(shift, 0.0f);
+			
+			for (int i = -12; i < 78; ++i) {
+				String value;
+				if (i < 0)
+					value = Integer.toString(36 + i/2);
+				else if (i > 72)
+					value = Integer.toString(i/2 - 36);
+				else
+					value = Integer.toString(i/2);
+				
+				if (i % 6 == 0) { // large tick every 30 degrees
+					canvas.drawLine(0f, 430f, 0f, 500f, scalePaint);
+					canvas.drawText(value, 0f, 400f, scaleLargePaint);
+				} else if (i % 2 == 0) { // large tick every 10 degrees
+					canvas.drawLine(0f, 430f, 0f, 500f, scalePaint);
+					canvas.drawText(value, 0f, 400f, scalePaint);
+				}
+				else { //small tick
+					canvas.drawLine(0f, 450f, 0f, 500f, scalePaint);
+				}
+				
+				canvas.translate(30f, 0.0f);
+			}
 			
 			canvas.restore();
+			
+			canvas.drawLine(500f, 350f, 500f, 520f, scalePaint);
 		}
 	}
 
@@ -206,7 +230,7 @@ public final class DirectionalGyro extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale/100f, scale/100f);
+		canvas.scale(scale/1000f, scale/1000f);
 
 		drawNeedle(canvas);
 		
@@ -229,11 +253,11 @@ public final class DirectionalGyro extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale/100f, scale/100f);
+		backgroundCanvas.scale(scale/1000f, scale/1000f);
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
-		drawScale(backgroundCanvas);		
+		drawScale(backgroundCanvas);
 	}
 		
 	public void setGyroHeading(float value) {

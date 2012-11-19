@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 
 import android.os.Bundle;
@@ -42,9 +43,9 @@ public final class ArtificialHorizon extends View {
 	private static final float maxBankValue = (float) Math.PI;
 	
 	// hand dynamics
-	private boolean needleInitialized = true;
-	private float pitch = 0.0f;
-	private float bank = 0.0f;
+	private boolean needleInitialized = false;
+	private float pitch = 0f;
+	private float bank = 0f;
 	
 	public ArtificialHorizon(Context context) {
 		super(context);
@@ -204,6 +205,12 @@ public final class ArtificialHorizon extends View {
 			float bankAngle = (float) Math.toDegrees(bank);
 			float pitchShift = -pitch * 100f / 2f;
 			canvas.save(Canvas.MATRIX_SAVE_FLAG);
+			
+			// set clip
+			Path path = new Path();
+			path.addCircle(50f, 50f, 35f, Path.Direction.CW);
+			canvas.clipPath(path);
+			
 			canvas.rotate(bankAngle, 50f, 50f);
 			// draw bank needle
 			canvas.drawLine(50f, 15f, 50f, 25f, needlePaint);

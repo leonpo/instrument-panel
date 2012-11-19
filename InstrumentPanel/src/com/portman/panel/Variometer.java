@@ -45,7 +45,7 @@ public final class Variometer extends View {
 	private static final float maxValue = 6.0f;
 	
 	// hand dynamics
-	private boolean handInitialized = true;
+	private boolean handInitialized = false;
 	private float handPosition = 0f;
 	
 	public Variometer(Context context) {

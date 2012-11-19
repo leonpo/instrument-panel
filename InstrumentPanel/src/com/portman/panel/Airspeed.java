@@ -47,7 +47,7 @@ public final class Airspeed extends View {
 	private static final int maxValue = 600;
 	
 	// hand dynamics
-	private boolean handInitialized = true;
+	private boolean handInitialized = false;
 	private float handPosition = centerValue;
 		
 	public Airspeed(Context context) {
