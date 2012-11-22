@@ -71,7 +71,9 @@ public class PanelActivity extends Activity {
 				   JSONObject object = (JSONObject) new JSONTokener(mClientMsg).nextValue();
 				   
 				   mAirspeed.setAirspeed((float)object.getDouble("AirspeedNeedle"));
-				   mAltimeter.setAltimeter((float)object.getDouble("Altimeter_1000_footPtr")/1000f);
+				   mAltimeter.setAltimeter((float)object.getDouble("Altimeter_10000_footPtr")/10000f, 
+						   (float)object.getDouble("Altimeter_1000_footPtr")/1000f, 
+						   (float)object.getDouble("Altimeter_100_footPtr")/100f);
 				   mManifold.setManifold((float)object.getDouble("Manifold_Pressure"));
 				   mRPM.setRPM((float)object.getDouble("Engine_RPM")/100f);
 				   mTurnIndicator.setTurnNeedlePosition((float)object.getDouble("TurnNeedle"));

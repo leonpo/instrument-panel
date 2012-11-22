@@ -31,7 +31,9 @@ public final class Altimeter extends View {
 	
 	private Paint titlePaint;	
 	
-	private Paint handPaint;
+	private Paint hand10000Paint;
+	private Paint hand1000Paint;
+	private Paint hand100Paint;
 	
 	private Paint backgroundPaint; 
 	// end drawing tools
@@ -41,13 +43,13 @@ public final class Altimeter extends View {
 	// scale configuration
 	private static final int totalNicks = 50;
 	private static final float degreesPerNick = 360.0f / totalNicks;	
-	private static final int centerValue = 0; // the one in the top center (12 o'clock)
 	private static final int minValue = 0;
 	private static final int maxValue = 10;
 	
 	// hand dynamics
-	private boolean handInitialized = false;
-	private float handPosition = centerValue;
+	private float hand10000Position = 0f;
+	private float hand1000Position = 0f;
+	private float hand100Position = 0f;
 	
 	public Altimeter(Context context) {
 		super(context);
@@ -70,8 +72,9 @@ public final class Altimeter extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		handInitialized = bundle.getBoolean("handInitialized");
-		handPosition = bundle.getFloat("handPosition");
+		hand10000Position = bundle.getFloat("hand10000Position");
+		hand1000Position = bundle.getFloat("hand1000Position");
+		hand100Position = bundle.getFloat("hand100Position");
 	}
 
 	@Override
@@ -80,8 +83,9 @@ public final class Altimeter extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putBoolean("handInitialized", handInitialized);
-		state.putFloat("handPosition", handPosition);
+		state.putFloat("hand10000Position", hand10000Position);
+		state.putFloat("hand1000Position", hand1000Position);
+		state.putFloat("hand100Position", hand100Position);
 		return state;
 	}
 
@@ -137,11 +141,23 @@ public final class Altimeter extends View {
 		titlePaint.setTextAlign(Paint.Align.CENTER);
 		titlePaint.setTextSize(8f);
 
-		handPaint = new Paint();
-		handPaint.setAntiAlias(true);
-		handPaint.setColor(Color.WHITE);
-		handPaint.setStrokeWidth(5f);
-		handPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
+		hand10000Paint = new Paint();
+		hand10000Paint.setAntiAlias(true);
+		hand10000Paint.setColor(Color.WHITE);
+		hand10000Paint.setStrokeWidth(1f);
+		hand10000Paint.setStyle(Paint.Style.FILL_AND_STROKE);	
+		
+		hand1000Paint = new Paint();
+		hand1000Paint.setAntiAlias(true);
+		hand1000Paint.setColor(Color.WHITE);
+		hand1000Paint.setStrokeWidth(3f);
+		hand1000Paint.setStyle(Paint.Style.FILL_AND_STROKE);
+		
+		hand100Paint = new Paint();
+		hand100Paint.setAntiAlias(true);
+		hand100Paint.setColor(Color.WHITE);
+		hand100Paint.setStrokeWidth(2f);
+		hand100Paint.setStyle(Paint.Style.FILL_AND_STROKE);
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -226,13 +242,12 @@ public final class Altimeter extends View {
 	
 	private int nickToValue(int nick) {
 		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		int shiftedValue = rawValue + centerValue;
-		return shiftedValue;
+		return rawValue;
 	}
 	
 	private float valueToAngle(float value) {
 		float valuePerNick = (float) (maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - centerValue - minValue) / valuePerNick;
+		return degreesPerNick * (value - minValue) / valuePerNick;
 	}
 	
 	private void drawTitle(Canvas canvas) {
@@ -242,13 +257,25 @@ public final class Altimeter extends View {
 	
 
 	private void drawHand(Canvas canvas) {
-		if (handInitialized) {
-			float handAngle = valueToAngle(handPosition);
-			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			canvas.rotate(handAngle, 50f, 50f);
-			canvas.drawLine(50f, 50f, 50f, 25f, handPaint);
-			canvas.restore();
-		}
+		float hand10000Angle = valueToAngle(hand10000Position);
+		float hand1000Angle = valueToAngle(hand1000Position);
+		float hand100Angle = valueToAngle(hand100Position);
+		
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(hand10000Angle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 35f, hand10000Paint);
+		canvas.restore();
+		
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(hand1000Angle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 25f, hand1000Paint);
+		canvas.restore();
+		
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(hand100Angle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 15f, hand100Paint);
+		
+		canvas.restore();
 	}
 
 	private void drawBackground(Canvas canvas) {
@@ -296,14 +323,28 @@ public final class Altimeter extends View {
 		drawTitle(backgroundCanvas);		
 	}
 		
-	public void setAltimeter(float value) {
-		if (value < minValue) {
-			value = minValue;
-		} else if (value > maxValue) {
-			value = maxValue;
+	public void setAltimeter(float value10000, float value1000, float value100) {
+		if (value10000 < minValue) {
+			value10000 = minValue;
+		} else if (value10000 > maxValue) {
+			value10000 = maxValue;
 		}
-		handPosition = value;
-		handInitialized = true;
+		hand10000Position = value10000;
+		
+		if (value1000 < minValue) {
+			value1000 = minValue;
+		} else if (value1000 > maxValue) {
+			value1000 = maxValue;
+		}
+		hand1000Position = value1000;
+
+		if (value100 < minValue) {
+			value100 = minValue;
+		} else if (value100 > maxValue) {
+			value100 = maxValue;
+		}
+		hand100Position = value100;
+
 		invalidate();
 	}
 }

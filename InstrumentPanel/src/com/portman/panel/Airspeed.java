@@ -47,7 +47,6 @@ public final class Airspeed extends View {
 	private static final int maxValue = 600;
 	
 	// hand dynamics
-	private boolean handInitialized = false;
 	private float handPosition = centerValue;
 		
 	public Airspeed(Context context) {
@@ -71,7 +70,6 @@ public final class Airspeed extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		handInitialized = bundle.getBoolean("handInitialized");
 		handPosition = bundle.getFloat("handPosition");
 	}
 
@@ -81,7 +79,6 @@ public final class Airspeed extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putBoolean("handInitialized", handInitialized);
 		state.putFloat("handPosition", handPosition);
 		return state;
 	}
@@ -253,13 +250,11 @@ public final class Airspeed extends View {
 	
 
 	private void drawHand(Canvas canvas) {
-		if (handInitialized) {
-			float handAngle = valueToAngle(handPosition);
-			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			canvas.rotate(handAngle, 50f, 50f);
-			canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
-			canvas.restore();
-		}
+		float handAngle = valueToAngle(handPosition);
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(handAngle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
+		canvas.restore();
 	}
 
 	private void drawBackground(Canvas canvas) {
@@ -314,7 +309,6 @@ public final class Airspeed extends View {
 			value = maxValue;
 		}
 		handPosition = value;
-		handInitialized = true;
 		invalidate();
 	}
 }

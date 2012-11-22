@@ -43,7 +43,6 @@ public final class ArtificialHorizon extends View {
 	private static final float maxBankValue = (float) Math.PI;
 	
 	// hand dynamics
-	private boolean needleInitialized = false;
 	private float pitch = 0f;
 	private float bank = 0f;
 	
@@ -68,7 +67,6 @@ public final class ArtificialHorizon extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		needleInitialized = bundle.getBoolean("needleInitialized");
 		pitch = bundle.getFloat("pitch");
 		bank = bundle.getFloat("bank");		
 	}
@@ -79,7 +77,6 @@ public final class ArtificialHorizon extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putBoolean("needleInitialized", needleInitialized);
 		state.putFloat("pitch", pitch);
 		state.putFloat("bank", bank);		
 		return state;
@@ -201,25 +198,23 @@ public final class ArtificialHorizon extends View {
 	}
 		
 	private void drawNeedle(Canvas canvas) {
-		if (needleInitialized) {
-			float bankAngle = (float) Math.toDegrees(bank);
-			float pitchShift = -pitch * 100f / 2f;
-			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			
-			// set clip
-			Path path = new Path();
-			path.addCircle(50f, 50f, 35f, Path.Direction.CW);
-			canvas.clipPath(path);
-			
-			canvas.rotate(bankAngle, 50f, 50f);
-			// draw bank needle
-			canvas.drawLine(50f, 15f, 50f, 25f, needlePaint);
-			
-			// draw horizon
-			canvas.translate(0.0f, pitchShift);
-			canvas.drawLine(10f, 50f, 90f, 50f, needlePaint);
-			canvas.restore();
-		}
+		float bankAngle = (float) Math.toDegrees(bank);
+		float pitchShift = -pitch * 100f / 2f;
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		
+		// set clip
+		Path path = new Path();
+		path.addCircle(50f, 50f, 35f, Path.Direction.CW);
+		canvas.clipPath(path);
+		
+		canvas.rotate(bankAngle, 50f, 50f);
+		// draw bank needle
+		canvas.drawLine(50f, 15f, 50f, 25f, needlePaint);
+		
+		// draw horizon
+		canvas.translate(0.0f, pitchShift);
+		canvas.drawLine(10f, 50f, 90f, 50f, needlePaint);
+		canvas.restore();
 	}
 
 	private void drawBackground(Canvas canvas) {
@@ -280,9 +275,6 @@ public final class ArtificialHorizon extends View {
 			bank = maxBankValue;
 		}
 		this.bank = bank;
-
-		
-		needleInitialized = true;
 		invalidate();
 	}
 }

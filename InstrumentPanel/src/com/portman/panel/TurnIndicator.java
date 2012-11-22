@@ -42,9 +42,7 @@ public final class TurnIndicator extends View {
 	private static final float maxSlipballValue = 1.0f;	
 	
 	//hands
-	private boolean turnNeedleInitialized = true;
 	private float turnNeedlePosition = 0;
-	private boolean slipballInitialized = true;
 	private float slipballPosition = 0;
 	
 	public TurnIndicator(Context context) {
@@ -68,9 +66,7 @@ public final class TurnIndicator extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		turnNeedleInitialized = bundle.getBoolean("turnNeedleInitialized");
 		turnNeedlePosition = bundle.getFloat("turnNeedlePosition");
-		slipballInitialized = bundle.getBoolean("slipballInitialized");
 		slipballPosition = bundle.getFloat("slipballPosition");
 	}
 
@@ -80,9 +76,7 @@ public final class TurnIndicator extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putBoolean("turnNeedleInitialized", turnNeedleInitialized);
 		state.putFloat("turnNeedlePosition", turnNeedlePosition);
-		state.putBoolean("slipballInitialized", slipballInitialized);
 		state.putFloat("slipballPosition", slipballPosition);
 		return state;
 	}
@@ -116,7 +110,7 @@ public final class TurnIndicator extends View {
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(2f);
+		scalePaint.setStrokeWidth(1f);
 		scalePaint.setAntiAlias(true);	
 		
 		turnNeedlePaint = new Paint();
@@ -126,7 +120,7 @@ public final class TurnIndicator extends View {
 		turnNeedlePaint.setAntiAlias(true);
 		
 		slipballPaint = new Paint();
-		slipballPaint.setColor(Color.WHITE);
+		slipballPaint.setColor(Color.BLACK);
 		slipballPaint.setStrokeWidth(2f);
 		slipballPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		slipballPaint.setAntiAlias(true);
@@ -186,32 +180,31 @@ public final class TurnIndicator extends View {
 		canvas.drawLine(50f, 20f, 55f, 10f, scalePaint);
 		canvas.drawLine(45f, 10f, 55f, 10f, scalePaint);
 		
+		// draw ball path
+		canvas.drawRect(20f, 62f, 80f, 78f, scalePaint);
+		
 		// draw gate
-		canvas.drawLine(40f, 60f, 40f, 80f, scalePaint);
-		canvas.drawLine(60f, 60f, 60f, 80f, scalePaint);
+		canvas.drawLine(40f, 60f, 40f, 80f, slipballPaint);
+		canvas.drawLine(60f, 60f, 60f, 80f, slipballPaint);
 	}
 	
 	private void drawTurnNeedle(Canvas canvas) {
-		if (turnNeedleInitialized) {
-			float turnNeedleAngle = (float) Math.toDegrees(turnNeedlePosition)*5;
-			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			canvas.rotate(turnNeedleAngle, 50f, 90f);
-			canvas.drawLine(50f, 60f, 50f, 20f, turnNeedlePaint);
-			canvas.restore();
-		}
+		float turnNeedleAngle = (float) Math.toDegrees(turnNeedlePosition)*5;
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(turnNeedleAngle, 50f, 90f);
+		canvas.drawLine(50f, 50f, 50f, 20f, turnNeedlePaint);
+		canvas.restore();
 	}
 	
 	private void drawSlipball(Canvas canvas) {
-		if (slipballInitialized) {
-			float slipballTranslate = slipballPosition * 30f;
-			canvas.save(Canvas.MATRIX_SAVE_FLAG);
-			
-			// draw slipball
-			canvas.translate(slipballTranslate, 0.0f);
-			canvas.drawCircle(50f, 70f, 10f, slipballPaint);
-			
-			canvas.restore();
-		}
+		float slipballTranslate = slipballPosition * 30f;
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		
+		// draw slipball
+		canvas.translate(slipballTranslate, 0.0f);
+		canvas.drawCircle(50f, 70f, 8f, slipballPaint);
+		
+		canvas.restore();
 	}
 
 	private void drawBackground(Canvas canvas) {
@@ -266,7 +259,6 @@ public final class TurnIndicator extends View {
 			value = maxTurnNeedleValue;
 		}
 		turnNeedlePosition = value;
-		turnNeedleInitialized = true;
 		invalidate();
 	}
 	
@@ -277,7 +269,6 @@ public final class TurnIndicator extends View {
 			value = maxSlipballValue;
 		}
 		slipballPosition = value;
-		slipballInitialized = true;
 		invalidate();
 	}
 }

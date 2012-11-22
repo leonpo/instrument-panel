@@ -39,7 +39,6 @@ public final class DirectionalGyro extends View {
 	private static final float maxGyroHeading = 2.0f * (float) Math.PI;
 	
 	// hand dynamics
-	private boolean needleInitialized = true;
 	private float gyroHeading = (float) Math.PI * 0f;
 	
 	public DirectionalGyro(Context context) {
@@ -63,7 +62,6 @@ public final class DirectionalGyro extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		needleInitialized = bundle.getBoolean("needleInitialized");
 		gyroHeading = bundle.getFloat("gyroHeading");
 	}
 
@@ -73,7 +71,6 @@ public final class DirectionalGyro extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putBoolean("needleInitialized", needleInitialized);
 		state.putFloat("gyroHeading", gyroHeading);		
 		return state;
 	}
@@ -179,43 +176,41 @@ public final class DirectionalGyro extends View {
 	}
 		
 	private void drawNeedle(Canvas canvas) {
-		if (needleInitialized) {
-			canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		
+		canvas.clipRect(250f, 200f, 750f, 550f);
+		
+		int shift =  (int) Math.toDegrees(gyroHeading) * 50 / 5 - 3400;
+		canvas.translate(shift, 0.0f);
+		
+		for (int i = 78; i > -12; --i) {
+			String value;
+			if (i < 0)
+				value = Integer.toString(36 + i/2);
+			else if (i > 72)
+				value = Integer.toString(i/2 - 36);
+			else
+				value = Integer.toString(i/2);
+			if (value.contentEquals("36"))
+				value = "0";
 			
-			canvas.clipRect(250f, 200f, 750f, 550f);
-			
-			int shift =  (int) Math.toDegrees(gyroHeading) * 50 / 5 - 3400;
-			canvas.translate(shift, 0.0f);
-			
-			for (int i = 78; i > -12; --i) {
-				String value;
-				if (i < 0)
-					value = Integer.toString(36 + i/2);
-				else if (i > 72)
-					value = Integer.toString(i/2 - 36);
-				else
-					value = Integer.toString(i/2);
-				if (value.contentEquals("36"))
-					value = "0";
-				
-				if (i % 6 == 0) { // large tick every 30 degrees
-					canvas.drawLine(0f, 380f, 0f, 500f, scalePaint);
-					canvas.drawText(value, 0f, 370f, scaleLargePaint);
-				} else if (i % 2 == 0) { // large tick every 10 degrees
-					canvas.drawLine(0f, 380f, 0f, 500f, scalePaint);
-					canvas.drawText(value, 0f, 370f, scalePaint);
-				}
-				else { //small tick
-					canvas.drawLine(0f, 430f, 0f, 500f, scalePaint);
-				}
-				
-				canvas.translate(50f, 0.0f);
+			if (i % 6 == 0) { // large tick every 30 degrees
+				canvas.drawLine(0f, 380f, 0f, 500f, scalePaint);
+				canvas.drawText(value, 0f, 370f, scaleLargePaint);
+			} else if (i % 2 == 0) { // large tick every 10 degrees
+				canvas.drawLine(0f, 380f, 0f, 500f, scalePaint);
+				canvas.drawText(value, 0f, 370f, scalePaint);
+			}
+			else { //small tick
+				canvas.drawLine(0f, 430f, 0f, 500f, scalePaint);
 			}
 			
-			canvas.restore();
-			
-			canvas.drawLine(500f, 300, 500f, 500f, scalePaint);
+			canvas.translate(50f, 0.0f);
 		}
+		
+		canvas.restore();
+		
+		canvas.drawLine(500f, 300, 500f, 500f, scalePaint);
 	}
 
 	private void drawBackground(Canvas canvas) {
@@ -270,7 +265,6 @@ public final class DirectionalGyro extends View {
 		}
 		this.gyroHeading = value;
 		
-		needleInitialized = true;
 		invalidate();
 	}
 }

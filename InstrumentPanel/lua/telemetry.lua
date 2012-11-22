@@ -1,7 +1,11 @@
 ---------------------------------------------------------------------------------------------------
 -- Export start 
 ---------------------------------------------------------------------------------------------------
-function LuaExportStart()
+
+Myfunction =
+
+{
+Start=function(self) 
 	package.path = package.path..";.\\LuaSocket\\?.lua"
 	package.cpath = package.cpath..";.\\LuaSocket\\?.dll"
 	socket = require("socket")
@@ -10,31 +14,17 @@ function LuaExportStart()
 	c1 = socket.try(socket.connect(host1, port1)) -- connect to the listener socket
 	c1:setoption("tcp-nodelay",true) -- set immediate transmission mode
 	c1:settimeout(.01)	
+	
 	-- export telemetry to panel
 	host2 = host2 or "10.0.0.9"
 	port2 = port2 or 6000
 	c2 = socket.try(socket.connect(host2, port2)) -- connect to the listener socket
 	c2:setoption("tcp-nodelay",true) -- set immediate transmission mode
 	c2:settimeout(.01)	
-end
+end,
 
----------------------------------------------------------------------------------------------------
--- Export stop
----------------------------------------------------------------------------------------------------
-function LuaExportStop()
-	--socket.try(c:send("quit")) -- to close the listener socket
-	if c1 then
-		c1:close()
-	end	
-	if c2 then
-		c2:close()
-	end	
-end
 
----------------------------------------------------------------------------------------------------
--- Export after next frame
----------------------------------------------------------------------------------------------------
-function LuaExportAfterNextFrame()
+AfterNextFrame=function(self)
 	local t = LoGetModelTime()
 	local altBar = LoGetAltitudeAboveSeaLevel() * 3.28084
 	local altRad = LoGetAltitudeAboveGroundLevel()
@@ -51,7 +41,9 @@ function LuaExportAfterNextFrame()
 	-- read from main panel
 	local MainPanel = GetDevice(0)
 	local AirspeedNeedle = MainPanel:get_argument_value(11)*1000
+	local Altimeter_10000_footPtr = MainPanel:get_argument_value(96)*100000
 	local Altimeter_1000_footPtr = MainPanel:get_argument_value(24)*10000
+	local Altimeter_100_footPtr = MainPanel:get_argument_value(25)*1000
 	local Variometer = MainPanel:get_argument_value(29)*10000
 	local TurnNeedle = MainPanel:get_argument_value(27)*math.rad(3)
 	local Slipball = MainPanel:get_argument_value(28)
@@ -68,6 +60,55 @@ function LuaExportAfterNextFrame()
 		socket.try(c1:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altRad, altBar, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
 	end
 	if c2 then
-		socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f }\n", AirspeedNeedle, Altimeter_1000_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading)))
+		socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading)))
+	end
+end,
+
+
+Stop=function(self)
+	if c1 then
+		c1:close()
+	end	
+	if c2 then
+		c2:close()
+	end	
+end
+}
+
+
+-- =============
+-- Overload
+-- =============
+
+-- Works once just before mission start.
+do
+	local PrevLuaExportStart=LuaExportStart;
+	LuaExportStart=function()
+		Myfonction:Start();
+		if PrevLuaExportStart then
+			PrevLuaExportStart();
+		end
+	end
+end
+
+-- Works just after every simulation frame.
+do
+	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame;
+	LuaExportAfterNextFrame=function()
+	Myfonction:AfterNextFrame();
+		if PrevLuaExportAfterNextFrame then
+			PrevLuaExportAfterNextFrame();
+		end
+	end
+end
+
+-- Works once just after mission stop.
+do
+	local PrevLuaExportStop=LuaExportStop;
+	LuaExportStop=function()
+	Myfonction:Stop();
+	if PrevLuaExportStop then
+		PrevLuaExportStop();
+	end
 	end
 end
