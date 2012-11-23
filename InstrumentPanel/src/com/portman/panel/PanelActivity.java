@@ -82,7 +82,7 @@ public class PanelActivity extends Activity {
 				   mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
 				   mVariometer.setVariometer((float)object.getDouble("Variometer")/1000);
 				   
-			   } catch (JSONException e) {
+			   } catch (Exception e) {
 				   // TODO Auto-generated catch block
 				   e.printStackTrace();
 			   }

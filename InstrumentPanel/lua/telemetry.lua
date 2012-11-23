@@ -84,7 +84,7 @@ end
 do
 	local PrevLuaExportStart=LuaExportStart;
 	LuaExportStart=function()
-		Myfonction:Start();
+		Myfunction:Start();
 		if PrevLuaExportStart then
 			PrevLuaExportStart();
 		end
@@ -95,7 +95,7 @@ end
 do
 	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame;
 	LuaExportAfterNextFrame=function()
-	Myfonction:AfterNextFrame();
+		Myfunction:AfterNextFrame();
 		if PrevLuaExportAfterNextFrame then
 			PrevLuaExportAfterNextFrame();
 		end
@@ -106,9 +106,9 @@ end
 do
 	local PrevLuaExportStop=LuaExportStop;
 	LuaExportStop=function()
-	Myfonction:Stop();
-	if PrevLuaExportStop then
-		PrevLuaExportStop();
-	end
+		Myfunction:Stop();
+		if PrevLuaExportStop then
+			PrevLuaExportStop();
+		end
 	end
 end
