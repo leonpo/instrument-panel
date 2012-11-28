@@ -53,6 +53,10 @@
 		    android:layout_height="fill_parent" />
 		<com.portman.panel.RPM 		android:id="@+id/rpm"	   
 		    android:layout_width="fill_parent" 
-		    android:layout_height="fill_parent" />	
+		    android:layout_height="fill_parent" />
+		<com.portman.panel.EngineGauge android:id="@+id/engine_gauge"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>		
 	</LinearLayout>
 </LinearLayout>

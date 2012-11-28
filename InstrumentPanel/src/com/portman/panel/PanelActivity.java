@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -14,8 +13,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
  
-public class PanelActivity extends Activity {
+public class PanelActivity extends Activity implements OnClickListener {
    ServerSocket ss = null;
    Thread myCommsThread = null;
    protected static final int MSG_ID = 0x1337;
@@ -31,6 +33,7 @@ public class PanelActivity extends Activity {
    private static ArtificialHorizon mArtificialHorizon;
    private static DirectionalGyro mDirectionalGyro;
    private static Variometer  mVariometer;
+   private static EngineGauge mEngineGauge;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -46,9 +49,25 @@ public class PanelActivity extends Activity {
 	   mArtificialHorizon = (ArtificialHorizon) findViewById(R.id.artificial_horizon);
 	   mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
 	   mVariometer = (Variometer) findViewById(R.id.variometer);
+	   mEngineGauge = (EngineGauge) findViewById(R.id.engine_gauge);
+	   
+	   // set click handlers
+	   mRPM.setOnClickListener(this);
+	   mEngineGauge.setOnClickListener(this);
 	  	 
 	   this.myCommsThread = new Thread(new CommsThread());
 	   this.myCommsThread.start();
+   }
+   
+   // Implement the OnClickListener callback
+   public void onClick(View v) {
+	   if (mRPM.getVisibility() == View.VISIBLE) { // show engine gauges
+		   mRPM.setVisibility(View.GONE);
+		   mEngineGauge.setVisibility(View.VISIBLE);
+	   } else {
+		   mEngineGauge.setVisibility(View.GONE);
+		   mRPM.setVisibility(View.VISIBLE);		   
+	   }
    }
  
    @Override
@@ -81,6 +100,7 @@ public class PanelActivity extends Activity {
 				   mArtificialHorizon.setPitchAndBank((float)object.getDouble("AHorizon_Pitch"), (float)object.getDouble("AHorizon_Bank"));
 				   mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
 				   mVariometer.setVariometer((float)object.getDouble("Variometer")/1000);
+				   mEngineGauge.setValues((float)object.getDouble("Oil_Temperature"), (float)object.getDouble("Oil_Pressure"), (float)object.getDouble("Fuel_Pressure"));
 				   
 			   } catch (Exception e) {
 				   // TODO Auto-generated catch block

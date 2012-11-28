@@ -10,14 +10,7 @@ Start=function(self)
 	package.cpath = package.cpath..";.\\LuaSocket\\?.dll"
 	socket = require("socket")
 	
-	my_init = socket.protect(function()
-		-- export telemetry to x-sim extractor
-		host1 = host1 or "localhost"
-		port1 = port1 or 8080
-		c1 = socket.try(socket.connect(host1, port1)) -- connect to the listener socket
-		c1:setoption("tcp-nodelay",true) -- set immediate transmission mode
-		c1:settimeout(.01)	
-	
+	my_init = socket.protect(function()	
 		-- export telemetry to instrumeny panel on android
 		host2 = host2 or "10.0.0.5"  	 -- android IP
 		port2 = port2 or 6000
@@ -30,20 +23,7 @@ end,
 
 
 AfterNextFrame=function(self)
-	local t = LoGetModelTime()
-	local altBar = LoGetAltitudeAboveSeaLevel() * 3.28084
-	local altRad = LoGetAltitudeAboveGroundLevel()
-	local pitch, bank, yaw = LoGetADIPitchBankYaw()
-	local angle = 0
-	local accel = LoGetAccelerationUnits()
-	local user1	 = 1
-	local user2	 = 2
-	local user3	 = 3
-	local user4	 = 4
-	local user5	 = 5
-	local user6	 = 6
-	
-	-- read from main panel
+	-- read from P-51D main panel instruments
 	local MainPanel = GetDevice(0)
 	local AirspeedNeedle = MainPanel:get_argument_value(11)*1000
 	local Altimeter_10000_footPtr = MainPanel:get_argument_value(96)*100000
@@ -60,13 +40,13 @@ AfterNextFrame=function(self)
 	local AHorizon_Bank = MainPanel:get_argument_value(14) * math.pi
 	local AHorizon_PitchShift = MainPanel:get_argument_value(16) * 10.0 * math.pi/180.0
 	local GyroHeading = MainPanel:get_argument_value(12) * 2.0 * math.pi
-
+	local Oil_Temperature = MainPanel:get_argument_value(30) * 100
+	local Oil_Pressure = MainPanel:get_argument_value(31) * 200
+	local Fuel_Pressure = MainPanel:get_argument_value(32) * 25
+	
 	my_send = socket.protect(function()
-		if c1 then
-			socket.try(c1:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altRad, altBar, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
-		end
 		if c2 then
-			socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading)))
+			socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading, Oil_Temperature, Oil_Pressure, Fuel_Pressure)))
 		end
 	end)
 	my_send()
@@ -76,9 +56,6 @@ end,
 
 Stop=function(self)
 	my_close = socket.protect(function()
-		if c1 then
-			c1:close()
-		end	
 		if c2 then
 			c2:close()
 		end	
