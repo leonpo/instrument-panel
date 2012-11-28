@@ -9,18 +9,23 @@ Start=function(self)
 	package.path = package.path..";.\\LuaSocket\\?.lua"
 	package.cpath = package.cpath..";.\\LuaSocket\\?.dll"
 	socket = require("socket")
-	host1 = host1 or "localhost"
-	port1 = port1 or 8080
-	c1 = socket.try(socket.connect(host1, port1)) -- connect to the listener socket
-	c1:setoption("tcp-nodelay",true) -- set immediate transmission mode
-	c1:settimeout(.01)	
 	
-	-- export telemetry to panel
-	host2 = host2 or "10.0.0.9"
-	port2 = port2 or 6000
-	c2 = socket.try(socket.connect(host2, port2)) -- connect to the listener socket
-	c2:setoption("tcp-nodelay",true) -- set immediate transmission mode
-	c2:settimeout(.01)	
+	my_init = socket.protect(function()
+		-- export telemetry to x-sim extractor
+		host1 = host1 or "localhost"
+		port1 = port1 or 8080
+		c1 = socket.try(socket.connect(host1, port1)) -- connect to the listener socket
+		c1:setoption("tcp-nodelay",true) -- set immediate transmission mode
+		c1:settimeout(.01)	
+	
+		-- export telemetry to instrumeny panel on android
+		host2 = host2 or "10.0.0.5"  	 -- android IP
+		port2 = port2 or 6000
+		c2 = socket.try(socket.connect(host2, port2)) -- connect to the listener socket
+		c2:setoption("tcp-nodelay",true) -- set immediate transmission mode
+		c2:settimeout(.01)
+	end)
+	my_init()	
 end,
 
 
@@ -55,23 +60,30 @@ AfterNextFrame=function(self)
 	local AHorizon_Bank = MainPanel:get_argument_value(14) * math.pi
 	local AHorizon_PitchShift = MainPanel:get_argument_value(16) * 10.0 * math.pi/180.0
 	local GyroHeading = MainPanel:get_argument_value(12) * 2.0 * math.pi
-	
-	if c1 then
-		socket.try(c1:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altRad, altBar, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
-	end
-	if c2 then
-		socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading)))
-	end
+
+	my_send = socket.protect(function()
+		if c1 then
+			socket.try(c1:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altRad, altBar, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
+		end
+		if c2 then
+			socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading)))
+		end
+	end)
+	my_send()
+		
 end,
 
 
 Stop=function(self)
-	if c1 then
-		c1:close()
-	end	
-	if c2 then
-		c2:close()
-	end	
+	my_close = socket.protect(function()
+		if c1 then
+			c1:close()
+		end	
+		if c2 then
+			c2:close()
+		end	
+	end)
+	my_close()
 end
 }
 
