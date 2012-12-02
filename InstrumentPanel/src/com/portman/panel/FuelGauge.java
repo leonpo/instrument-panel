@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class Airspeed extends View {
+public final class FuelGauge extends View {
 
-	private static final String TAG = Airspeed.class.getSimpleName();
+	private static final String TAG = FuelGauge.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -40,26 +40,26 @@ public final class Airspeed extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 60;
-	private static final float degreesPerNick = 360.0f / totalNicks;	
-	private static final int centerValue = 0; // the one in the top center (12 o'clock)
+	private static final int totalNicks = 18;
+	private static final float degreesPerNick = 180.0f / totalNicks;	
 	private static final int minValue = 0;
-	private static final int maxValue = 600;
+	private static final int maxValue = 90;
 	
 	// hand dynamics
 	private float handPosition = 0;
+	private String title = "Fuel";
 		
-	public Airspeed(Context context) {
+	public FuelGauge(Context context) {
 		super(context);
 		init();
 	}
 
-	public Airspeed(Context context, AttributeSet attrs) {
+	public FuelGauge(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public Airspeed(Context context, AttributeSet attrs, int defStyle) {
+	public FuelGauge(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -88,7 +88,11 @@ public final class Airspeed extends View {
 	}
 
 	private String getTitle() {
-		return "M.P.H.";
+		return title;
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	private void initDrawingTools() {
@@ -199,16 +203,16 @@ public final class Airspeed extends View {
 	}
 
 	private void drawScale(Canvas canvas) {
-		//canvas.drawOval(scaleRect, scalePaint);
-
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		
+		canvas.rotate(-90, 50f, 50f);
 		for (int i = 0; i < totalNicks; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			if (i % 5 == 0) { // every 5
+			if (i % 2 == 0) { // every 2
 				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
 				int value = nickToValue(i);
@@ -217,15 +221,11 @@ public final class Airspeed extends View {
 					
 					// draw vertical text
 					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick * i, 50f, y2 + 8f);
+					canvas.rotate(-degreesPerNick * i + 90, 50f, y2 + 8f);
 					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
 					canvas.restore();
 				}
 			}
-			
-			// draw red line at 505 knots
-			if (i == 51)
-				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
 			
 			canvas.rotate(degreesPerNick, 50f, 50f);
 		}
@@ -234,21 +234,19 @@ public final class Airspeed extends View {
 	
 	private int nickToValue(int nick) {
 		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		int shiftedValue = rawValue + centerValue;
-		return shiftedValue;
+		return rawValue;
 	}
 	
 	private float valueToAngle(float value) {
 		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - centerValue - minValue) / valuePerNick;
+		return degreesPerNick * (value - minValue) / valuePerNick - 90;
 	}
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 50f, 60f, titlePaint);
+		canvas.drawText(title, 50f, 80f, titlePaint);
 	}
 	
-
 	private void drawHand(Canvas canvas) {
 		float handAngle = valueToAngle(handPosition);
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
@@ -302,7 +300,7 @@ public final class Airspeed extends View {
 		drawTitle(backgroundCanvas);		
 	}
 		
-	public void setAirspeed(float value) {
+	public void setFuel(float value) {
 		if (value < minValue) {
 			value = minValue;
 		} else if (value > maxValue) {

@@ -63,33 +63,33 @@ end
 
 -- Works once just before mission start.
 do
-	local PrevLuaExportStart=LuaExportStart;
+	local PrevLuaExportStart=LuaExportStart
 	LuaExportStart=function()
-		Myfunction:Start();
+		Myfunction:Start()
 		if PrevLuaExportStart then
-			PrevLuaExportStart();
+			PrevLuaExportStart()
 		end
 	end
 end
 
 -- Works just after every simulation frame.
 do
-	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame;
+	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame
 	LuaExportAfterNextFrame=function()
-		Myfunction:AfterNextFrame();
+		Myfunction:AfterNextFrame()
 		if PrevLuaExportAfterNextFrame then
-			PrevLuaExportAfterNextFrame();
+			PrevLuaExportAfterNextFrame()
 		end
 	end
 end
 
 -- Works once just after mission stop.
 do
-	local PrevLuaExportStop=LuaExportStop;
+	local PrevLuaExportStop=LuaExportStop
 	LuaExportStop=function()
-		Myfunction:Stop();
+		Myfunction:Stop()
 		if PrevLuaExportStop then
-			PrevLuaExportStop();
+			PrevLuaExportStop()
 		end
 	end
 end

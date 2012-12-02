@@ -57,9 +57,9 @@ public final class EngineGauge extends View {
 	private static final int maxOilTemperatureValue = 100;
 	
 	// hand dynamics
-	private float fuelPressure = 15f;
-	private float oilTemperature = 70f;
-	private float oilPressure = 75f;
+	private float fuelPressure = 0f;
+	private float oilTemperature = 0f;
+	private float oilPressure = 0f;
 	
 	public EngineGauge(Context context) {
 		super(context);

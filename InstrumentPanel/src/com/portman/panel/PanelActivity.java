@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Toast;
  
 public class PanelActivity extends Activity implements OnClickListener {
    ServerSocket ss = null;
@@ -34,6 +33,9 @@ public class PanelActivity extends Activity implements OnClickListener {
    private static DirectionalGyro mDirectionalGyro;
    private static Variometer  mVariometer;
    private static EngineGauge mEngineGauge;
+   private static FuelGauge mFuelGaugeLeft;
+   private static FuelGauge mFuelGaugeRight;
+   private static FuelGauge mFuelGaugeFuselage;   
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -50,10 +52,21 @@ public class PanelActivity extends Activity implements OnClickListener {
 	   mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
 	   mVariometer = (Variometer) findViewById(R.id.variometer);
 	   mEngineGauge = (EngineGauge) findViewById(R.id.engine_gauge);
+	   mFuelGaugeLeft = (FuelGauge) findViewById(R.id.fuel_gauge_left);
+	   mFuelGaugeRight = (FuelGauge) findViewById(R.id.fuel_gauge_right);
+	   mFuelGaugeFuselage = (FuelGauge) findViewById(R.id.fuel_gauge_fuselage);
+	   
+	   // set titles
+	   mFuelGaugeLeft.setTitle("Fuel Left Tank");
+	   mFuelGaugeRight.setTitle("Fuel Right Tank");
+	   mFuelGaugeFuselage.setTitle("Fuel Fuselage Tank");	   
 	   
 	   // set click handlers
 	   mRPM.setOnClickListener(this);
 	   mEngineGauge.setOnClickListener(this);
+	   mFuelGaugeLeft.setOnClickListener(this);
+	   mFuelGaugeRight.setOnClickListener(this);
+	   mFuelGaugeFuselage.setOnClickListener(this);	   
 	  	 
 	   this.myCommsThread = new Thread(new CommsThread());
 	   this.myCommsThread.start();
@@ -64,8 +77,21 @@ public class PanelActivity extends Activity implements OnClickListener {
 	   if (mRPM.getVisibility() == View.VISIBLE) { // show engine gauges
 		   mRPM.setVisibility(View.GONE);
 		   mEngineGauge.setVisibility(View.VISIBLE);
-	   } else {
+	   } 
+	   else if (mEngineGauge.getVisibility() == View.VISIBLE) {
 		   mEngineGauge.setVisibility(View.GONE);
+		   mFuelGaugeLeft.setVisibility(View.VISIBLE);		   
+	   }
+	   else if (mFuelGaugeLeft.getVisibility() == View.VISIBLE) {
+		   mFuelGaugeLeft.setVisibility(View.GONE);
+		   mFuelGaugeRight.setVisibility(View.VISIBLE);		   
+	   }
+	   else if (mFuelGaugeRight.getVisibility() == View.VISIBLE) {
+		   mFuelGaugeRight.setVisibility(View.GONE);
+		   mFuelGaugeFuselage.setVisibility(View.VISIBLE);		   
+	   }
+	   else if (mFuelGaugeFuselage.getVisibility() == View.VISIBLE) {
+		   mFuelGaugeFuselage.setVisibility(View.GONE);
 		   mRPM.setVisibility(View.VISIBLE);		   
 	   }
    }
@@ -101,7 +127,9 @@ public class PanelActivity extends Activity implements OnClickListener {
 				   mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
 				   mVariometer.setVariometer((float)object.getDouble("Variometer")/1000);
 				   mEngineGauge.setValues((float)object.getDouble("Oil_Temperature"), (float)object.getDouble("Oil_Pressure"), (float)object.getDouble("Fuel_Pressure"));
-				   
+				   mFuelGaugeLeft.setFuel((float)object.getDouble("Fuel_Tank_Left"));
+				   mFuelGaugeRight.setFuel((float)object.getDouble("Fuel_Tank_Right"));
+				   mFuelGaugeFuselage.setFuel((float)object.getDouble("Fuel_Tank_Fuselage"));				   
 			   } catch (Exception e) {
 				   // TODO Auto-generated catch block
 				   e.printStackTrace();

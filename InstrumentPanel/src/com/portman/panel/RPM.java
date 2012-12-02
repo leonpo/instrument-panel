@@ -48,7 +48,7 @@ public final class RPM extends View {
 	private static final int maxValue = 45;
 	
 	// hand dynamics
-	private float handPosition = centerValue;
+	private float handPosition = 0f;
 	
 	public RPM(Context context) {
 		super(context);

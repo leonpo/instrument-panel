@@ -57,6 +57,18 @@
 		<com.portman.panel.EngineGauge android:id="@+id/engine_gauge"	   
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>	
+		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_left"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>	
+		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_right"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>	
+		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_fuselage"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
 		    android:visibility="gone"/>		
 	</LinearLayout>
 </LinearLayout>

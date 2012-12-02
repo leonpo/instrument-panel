@@ -2,7 +2,7 @@
 -- Export start 
 ---------------------------------------------------------------------------------------------------
 
-Myfunction =
+Myfunction2 =
 
 {
 Start=function(self) 
@@ -12,7 +12,7 @@ Start=function(self)
 	
 	my_init = socket.protect(function()	
 		-- export telemetry to instrumeny panel on android
-		host2 = host2 or "10.0.0.5"  	 -- android IP
+		host2 = host2 or "10.0.0.3"  	 -- android IP
 		port2 = port2 or 6000
 		c2 = socket.try(socket.connect(host2, port2)) -- connect to the listener socket
 		c2:setoption("tcp-nodelay",true) -- set immediate transmission mode
@@ -43,10 +43,14 @@ AfterNextFrame=function(self)
 	local Oil_Temperature = MainPanel:get_argument_value(30) * 100
 	local Oil_Pressure = MainPanel:get_argument_value(31) * 200
 	local Fuel_Pressure = MainPanel:get_argument_value(32) * 25
+	local Fuel_Tank_Left = MainPanel:get_argument_value(155) * 92
+	local Fuel_Tank_Right = MainPanel:get_argument_value(156) * 92
+	local Fuel_Tank_Fuselage = MainPanel:get_argument_value(160) * 85
+	
 	
 	my_send = socket.protect(function()
 		if c2 then
-			socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading, Oil_Temperature, Oil_Pressure, Fuel_Pressure)))
+			socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f, 'Fuel_Tank_Left':%.2f, 'Fuel_Tank_Right':%.2f, 'Fuel_Tank_Fuselage':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading, Oil_Temperature, Oil_Pressure, Fuel_Pressure, Fuel_Tank_Left, Fuel_Tank_Right, Fuel_Tank_Fuselage)))
 		end
 	end)
 	my_send()
@@ -71,33 +75,33 @@ end
 
 -- Works once just before mission start.
 do
-	local PrevLuaExportStart=LuaExportStart;
+	local PrevLuaExportStart=LuaExportStart
 	LuaExportStart=function()
-		Myfunction:Start();
+		Myfunction2:Start()
 		if PrevLuaExportStart then
-			PrevLuaExportStart();
+			PrevLuaExportStart()
 		end
 	end
 end
 
 -- Works just after every simulation frame.
 do
-	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame;
+	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame
 	LuaExportAfterNextFrame=function()
-		Myfunction:AfterNextFrame();
+		Myfunction2:AfterNextFrame()
 		if PrevLuaExportAfterNextFrame then
-			PrevLuaExportAfterNextFrame();
+			PrevLuaExportAfterNextFrame()
 		end
 	end
 end
 
 -- Works once just after mission stop.
 do
-	local PrevLuaExportStop=LuaExportStop;
+	local PrevLuaExportStop=LuaExportStop
 	LuaExportStop=function()
-		Myfunction:Stop();
+		Myfunction2:Stop()
 		if PrevLuaExportStop then
-			PrevLuaExportStop();
+			PrevLuaExportStop()
 		end
 	end
 end

@@ -48,7 +48,7 @@ public final class Manifold extends View {
 	private static final int maxValue = 75;
 	
 	// hand dynamics
-	private float handPosition = centerValue;
+	private float handPosition = 10f;
 		
 	public Manifold(Context context) {
 		super(context);
