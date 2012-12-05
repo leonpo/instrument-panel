@@ -381,12 +381,11 @@ public final class Variometer extends View {
 		drawTitle(backgroundCanvas);		
 	}
 
-		
 	public void setVariometer(float value) {
-		if (value < minValue2) {
-			value = minValue2;
-		} else if (value > maxValue2) {
-			value = maxValue2;
+		if (value < minValue1) {
+			value = minValue1;
+		} else if (value > maxValue3) {
+			value = maxValue3;
 		}
 		handPosition = value;
 		invalidate();

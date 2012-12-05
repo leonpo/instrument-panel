@@ -125,7 +125,7 @@ public class PanelActivity extends Activity implements OnClickListener {
 				   mTurnIndicator.setSlipballPosition((float)object.getDouble("Slipball"));
 				   mArtificialHorizon.setPitchAndBank((float)object.getDouble("AHorizon_Pitch"), (float)object.getDouble("AHorizon_Bank"));
 				   mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
-				   mVariometer.setVariometer((float)object.getDouble("Variometer")/1000);
+				   mVariometer.setVariometer((float)object.getDouble("Variometer")/1000f);
 				   mEngineGauge.setValues((float)object.getDouble("Oil_Temperature"), (float)object.getDouble("Oil_Pressure"), (float)object.getDouble("Fuel_Pressure"));
 				   mFuelGaugeLeft.setFuel((float)object.getDouble("Fuel_Tank_Left"));
 				   mFuelGaugeRight.setFuel((float)object.getDouble("Fuel_Tank_Right"));
