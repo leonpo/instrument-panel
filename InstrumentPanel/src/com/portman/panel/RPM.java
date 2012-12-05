@@ -42,8 +42,7 @@ public final class RPM extends View {
 	
 	// scale configuration
 	private static final int totalNicks = 45;
-	private static final float degreesPerNick = 360.0f / totalNicks;	
-	private static final int centerValue = 25; // the one in the top center (12 o'clock)
+	private static final float degreesPerNick = 330.0f / totalNicks;	
 	private static final int minValue = 0;
 	private static final int maxValue = 45;
 	
@@ -204,11 +203,14 @@ public final class RPM extends View {
 	}
 
 	private void drawScale(Canvas canvas) {
-		// draw green range 16 - 24
-		canvas.drawArc(scaleRect, 198, 65, false, scaleGreenPaint);
-
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		for (int i = 0; i < totalNicks; ++i) {
+		
+		// draw green range 16 - 24
+		canvas.drawArc(scaleRect, valueToAngle(16f) - 90f, valueToAngle(24f) - valueToAngle(16f), false, scaleGreenPaint);
+		
+		canvas.rotate(-165f, 50f, 50f);
+
+		for (int i = 0; i <= totalNicks; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
 			
@@ -218,19 +220,17 @@ public final class RPM extends View {
 				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
 				int value = nickToValue(i);
-				if (value >= minValue && value <= maxValue) {
-					String valueString = Integer.toString(value);
-					
-					// draw vertical text
-					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick * i, 50f, y2 + 8f);
-					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-					canvas.restore();
-				}
+				String valueString = Integer.toString(value);
+				
+				// draw vertical text
+				canvas.save(Canvas.MATRIX_SAVE_FLAG);
+				canvas.rotate(-degreesPerNick * i + 165f, 50f, y2 + 8f);
+				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+				canvas.restore();
 			}
 			
 			// draw red line at 3000 RPM
-			if (i == 5)
+			if (i == 30)
 				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
 			
 			canvas.rotate(degreesPerNick, 50f, 50f);
@@ -239,16 +239,13 @@ public final class RPM extends View {
 	}
 	
 	private int nickToValue(int nick) {
-		if ((nick >= totalNicks / 2))
-			nick = nick - totalNicks;
 		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		int shiftedValue = rawValue + centerValue;
-		return shiftedValue;
+		return rawValue;
 	}
 	
 	private float valueToAngle(float value) {
 		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - centerValue - minValue) / valuePerNick;
+		return degreesPerNick * (value - minValue) / valuePerNick - 165f;
 	}
 	
 	private void drawTitle(Canvas canvas) {

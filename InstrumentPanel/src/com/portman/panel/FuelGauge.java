@@ -216,15 +216,13 @@ public final class FuelGauge extends View {
 				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
 				int value = nickToValue(i);
-				if (value >= minValue && value <= maxValue) {
-					String valueString = Integer.toString(value);
-					
-					// draw vertical text
-					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick * i + 90, 50f, y2 + 8f);
-					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-					canvas.restore();
-				}
+				String valueString = Integer.toString(value);
+				
+				// draw vertical text
+				canvas.save(Canvas.MATRIX_SAVE_FLAG);
+				canvas.rotate(-degreesPerNick * i + 90, 50f, y2 + 8f);
+				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+				canvas.restore();
 			}
 			
 			canvas.rotate(degreesPerNick, 50f, 50f);
