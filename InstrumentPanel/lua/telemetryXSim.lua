@@ -36,9 +36,16 @@ AfterNextFrame=function(self)
 	local user5	 = 5
 	local user6	 = 6
 	
+	-- reduce forces on ground
+	if altRad < 3 then
+		accel.x = accel.x * 0.25
+		accel.y = accel.y * 0.25
+		accel.z = accel.z * 0.25
+	end
+	
 	my_send = socket.protect(function()
 		if c1 then
-			socket.try(c1:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altRad, altBar, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
+			socket.try(c1:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altBar, altRad, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
 		end
 	end)
 	my_send()

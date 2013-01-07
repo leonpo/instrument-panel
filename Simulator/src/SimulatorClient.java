@@ -16,7 +16,7 @@ class SimulatorClient
     	float AirspeedNeedle, Altimeter_1000_footPtr, Variometer, TurnNeedle, Slipball, CompassHeading, 
     		Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading;
     	try {
-            Socket s = new Socket("192.168.2.147", TCP_SERVER_PORT);
+            Socket s = new Socket("172.16.0.131", TCP_SERVER_PORT);
             int i = 0;
             while (i++ < 10000) {
 	            //send output msg
