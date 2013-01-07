@@ -11,7 +11,7 @@ Start=function(self)
 	
 	my_init = socket.protect(function()	
 		-- export telemetry to instrumeny panel on android
-		host_tews = host_tews or "localhost"  	 -- android IP
+		host_tews = host_tews or "10.0.0.10"  	 -- android IP
 		port_tews = port_tews or 6000
 		c_tews = socket.try(socket.connect(host_tews, port_tews)) -- connect to the listener socket
 		c_tews:setoption("tcp-nodelay",true) -- set immediate transmission mode
@@ -23,24 +23,26 @@ end,
 AfterNextFrame=function(self)
 	-- read from TWS FC3 export
 	local threats = LoGetTWSInfo()
+	local jsonThreats = "{ 'Mode':1.0, 'Emiters':[{ 'ID':'test', 'Power':1.0, 'Azimuth':0.8, 'Priority':1.0, 'SignalType':'AAA', 'Type':'BBB' }] }\n"
 	if threats then		
 		-- add emiters to json
 		local jsonEmiters = "[ "
-		for mode,emit in pairs (threats.Emitters) do	
+		for mode,emit in pairs (threats.Emitters) do
+			local jsonEmit = ""		
 			local threatType = LoGetNameByType(emit.Type.level1, emit.Type.level2, emit.Type.level3, emit.Type.level4)
 			if threatType then
-				local jsonEmit = string.format("{ 'ID':'%s', 'Power':%f, 'Azimuth':%f, 'Priority':%f, 'SignalType':'%s', 'Type':'%s' }", emit.ID, emit.Power, emit.Azimuth, emit.Priority, emit.SignalType, threatType)		
+				jsonEmit = string.format("{ 'ID':'%s', 'Power':%f, 'Azimuth':%f, 'Priority':%f, 'SignalType':'%s', 'Type':'%s' }", emit.ID, emit.Power, emit.Azimuth, emit.Priority, emit.SignalType, threatType)		
 			else
-				local jsonEmit = string.format("{ 'ID':'%s', 'Power':%f, 'Azimuth':%f, 'Priority':%f, 'SignalType':'%s', 'Type':'N/A' }", emit.ID, emit.Power, emit.Azimuth, emit.Priority, emit.SignalType)		
+				jsonEmit = string.format("{ 'ID':'%s', 'Power':%f, 'Azimuth':%f, 'Priority':%f, 'SignalType':'%s', 'Type':'N/A' }", emit.ID, emit.Power, emit.Azimuth, emit.Priority, emit.SignalType)		
 			end
-			if jsonEmiters != "[ " then
-				jsonEmiters = jsonEmiters + ","
+			if jsonEmiters ~= "[ " then
+				jsonEmiters = jsonEmiters .. ","
 			end
-			jsonEmiters = jsonEmiters + jsonEmit
+			jsonEmiters = jsonEmiters .. jsonEmit
 		end
-		jsonEmiters = jsonEmiters + "]"
+		jsonEmiters = jsonEmiters .. "]"
 		
-		local jsonThreats = string.format("{ 'Mode':%f, 'Emiters':%s } ", threats.Mode, jsonEmiters)		
+		jsonThreats = string.format("{ 'Mode':%f, 'Emiters':%s }\n", threats.Mode, jsonEmiters)		
 	end
 	
 	my_send = socket.protect(function()
