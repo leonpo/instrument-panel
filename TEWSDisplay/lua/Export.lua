@@ -1054,5 +1054,4 @@ To be continued...
 --                                      "mfd3"    - not used
 --                                      "mirrors" - mirrors
 -- import telemtry
-dofile("./Config/Export/telemetryXSim.lua") 
-dofile("./Config/Export/telemetry.lua")  
+dofile("./Config/Export/exportTWS.lua")  
