@@ -20,7 +20,9 @@ Start=function(self)
 	my_init()	
 end,
 
-AfterNextFrame=function(self)
+ActivityNextEvent=function(self, t)
+	local tNext = t
+	
 	-- read from TWS FC3 export
 	local threats = LoGetTWSInfo()
 	local jsonThreats = "{ 'Mode':1.0, 'Emiters':[{ 'ID':'test', 'Power':1.0, 'Azimuth':0.8, 'Priority':1.0, 'SignalType':'AAA', 'Type':'BBB' }] }\n"
@@ -51,7 +53,8 @@ AfterNextFrame=function(self)
 		end
 	end)
 	my_send()
-		
+	
+	return tNext + 1
 end,
 
 Stop=function(self)
@@ -82,12 +85,14 @@ end
 
 -- Works just after every simulation frame.
 do
-	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame
-	LuaExportAfterNextFrame=function()
-		f_tews:AfterNextFrame()
-		if PrevLuaExportAfterNextFrame then
-			PrevLuaExportAfterNextFrame()
+	local PrevLuaExportActivityNextEvent=LuaExportActivityNextEvent
+	LuaExportActivityNextEvent=function(t)
+		local tNext = t
+		tNext = f_tews:ActivityNextEvent(t)
+		if PrevLuaExportActivityNextEvent then
+			PrevLuaExportActivityNextEvent(t)
 		end
+		return tNext
 	end
 end
 

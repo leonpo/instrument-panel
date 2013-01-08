@@ -84,7 +84,7 @@ public final class Display extends View {
 		
 		// init test threats
 		try {
-			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':1, 'Azimuth':-0.5, 'Priority':1, 'SignalType':'AAA', 'Type':'AIR'}, {'ID':'2', 'Power':1, 'Azimuth':1.1, 'Priority':2, 'SignalType':'AAA', 'Type':'AIR'}]}").nextValue();
+			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':0.8, 'Azimuth':2, 'Priority':200, 'SignalType':'scan', 'Type':'mig-29s'}]}").nextValue();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -134,8 +134,8 @@ public final class Display extends View {
 		symbolPaint = new Paint();
 		symbolPaint.setAntiAlias(true);
 		symbolPaint.setColor(Color.GREEN);
-		symbolPaint.setStrokeWidth(10f);
-		symbolPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
+		symbolPaint.setStrokeWidth(5f);
+		symbolPaint.setStyle(Paint.Style.STROKE);	
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -177,7 +177,7 @@ public final class Display extends View {
 		// first, draw the metallic body
 		canvas.drawOval(rimRect, rimPaint);
 		// now the outer rim circle
-		canvas.drawOval(rimRect, rimCirclePaint);
+		//canvas.drawOval(rimRect, rimCirclePaint);
 	}
 	
 	private void drawFace(Canvas canvas) {		
@@ -218,7 +218,7 @@ public final class Display extends View {
 			    float azimuth = (float) (emiter.getDouble("Azimuth") * 180f/ Math.PI);
 			    float priority = (float) (emiter.getDouble("Priority")); // 160, 180, 360
 			    float power = (float) (emiter.getDouble("Power")); // 0 - 1 (> 0,5 inner circle)
-			    String signalType = emiter.getString("SignalType"); // scan, lock, missile_radio_guided
+			    String signalType = emiter.getString("SignalType"); // scan, lock, missile_radio_guided, track_while_scan
 			    String type = emiter.getString("Type"); // mig-29c, osa, etc...
 			    			    
 			    canvas.save(Canvas.MATRIX_SAVE_FLAG);
@@ -227,12 +227,34 @@ public final class Display extends View {
 				
 				// draw emiter ID
 				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-azimuth, 500f, 100f);
-				canvas.drawText(signalType + " " + type + " " + power + " " + priority, 500f, 100f, symbolTextPaint);
-				canvas.restore();
+				float x = 500f;
+				float y = 500f;
+				canvas.translate(0f, -(1f - power) * 500f);
+				canvas.rotate(-azimuth, x, y + 15f);
 				
-				//canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
-				canvas.restore();
+				if (!signalType.contentEquals("missile_radio_guided")) {
+					canvas.drawText(type, x, y + 15f, symbolTextPaint);
+				}
+				
+				if (signalType.contentEquals("lock")) { // draw circle - missile launch
+					canvas.drawCircle(x, y, 50f, symbolPaint);
+				}
+				
+				if (signalType.contentEquals("missile_radio_guided")) { // draw circle - missile in the air
+					canvas.drawCircle(x, y, 50f, symbolPaint);
+					canvas.drawText("M", x, y + 15f, symbolTextPaint);
+				}
+				
+				if (priority > 100 ) { // draw diamond - high priority
+					canvas.save(Canvas.MATRIX_SAVE_FLAG);
+					canvas.rotate(45, x, y);
+					canvas.drawRect(470f, 470f, 530f, 530f, symbolPaint);
+					canvas.restore();
+				}
+				
+				canvas.restore(); // emiter symbol 
+				
+				canvas.restore(); // emiter azimuth 
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

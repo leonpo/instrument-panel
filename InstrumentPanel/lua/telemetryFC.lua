@@ -2,7 +2,7 @@
 -- Export start 
 ---------------------------------------------------------------------------------------------------
 
-Myfunction2 =
+f_telemetryFC =
 
 {
 Start=function(self) 
@@ -12,17 +12,18 @@ Start=function(self)
 	
 	my_init = socket.protect(function()	
 		-- export telemetry to instrumeny panel on android
-		host2 = host2 or "localhost"  	 -- android IP
-		port2 = port2 or 6000
-		c2 = socket.try(socket.connect(host2, port2)) -- connect to the listener socket
-		c2:setoption("tcp-nodelay",true) -- set immediate transmission mode
-		c2:settimeout(.01)
+		host_telemetryFC = host_telemetryFC or "localhost"  	 -- android IP
+		port_telemetryFC = port_telemetryFC or 6000
+		c_telemetryFC = socket.try(socket.connect(host_telemetryFC, port_telemetryFC)) -- connect to the listener socket
+		c_telemetryFC:setoption("tcp-nodelay",true) -- set immediate transmission mode
+		c_telemetryFC:settimeout(.01)
 	end)
 	my_init()	
 end,
 
-
-AfterNextFrame=function(self)
+ActivityNextEvent=function(self, t)
+	local tNext = t
+	
 	-- read from FC3
 	local MainPanel = GetDevice(0)
 	local AirspeedNeedle = LoGetIndicatedAirSpeed() * 1.943
@@ -51,19 +52,20 @@ AfterNextFrame=function(self)
 	local Fuel_Tank_Fuselage = LoGetEngineInfo().fuel_external * 2.2 / 100
 		
 	my_send = socket.protect(function()
-		if c2 then
-			socket.try(c2:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f,'AngleOfAttack':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f, 'Fuel_Tank_Left':%.2f, 'Fuel_Tank_Right':%.2f, 'Fuel_Tank_Fuselage':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, AngleOfAttack, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading, Oil_Temperature, Oil_Pressure, Fuel_Pressure, Fuel_Tank_Left, Fuel_Tank_Right, Fuel_Tank_Fuselage)))
+		if c_telemetryFC then
+			socket.try(c_telemetryFC:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f,'AngleOfAttack':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f, 'Fuel_Tank_Left':%.2f, 'Fuel_Tank_Right':%.2f, 'Fuel_Tank_Fuselage':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, AngleOfAttack, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading, Oil_Temperature, Oil_Pressure, Fuel_Pressure, Fuel_Tank_Left, Fuel_Tank_Right, Fuel_Tank_Fuselage)))
 		end
 	end)
 	my_send()
-		
+	
+	return tNext + 1	
 end,
 
 
 Stop=function(self)
 	my_close = socket.protect(function()
-		if c2 then
-			c2:close()
+		if c_telemetryFC then
+			c_telemetryFC:close()
 		end	
 	end)
 	my_close()
@@ -79,7 +81,7 @@ end
 do
 	local PrevLuaExportStart=LuaExportStart
 	LuaExportStart=function()
-		Myfunction2:Start()
+		f_telemetryFC:Start()
 		if PrevLuaExportStart then
 			PrevLuaExportStart()
 		end
@@ -88,12 +90,14 @@ end
 
 -- Works just after every simulation frame.
 do
-	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame
-	LuaExportAfterNextFrame=function()
-		Myfunction2:AfterNextFrame()
-		if PrevLuaExportAfterNextFrame then
-			PrevLuaExportAfterNextFrame()
+	local PrevLuaExportActivityNextEvent=LuaExportActivityNextEvent
+	LuaExportActivityNextEvent=function(t)
+		local tNext = t
+		tNext = f_telemetryFC:ActivityNextEvent(t)
+		if PrevLuaExportActivityNextEvent then
+			PrevLuaExportActivityNextEvent(t)
 		end
+		return tNext
 	end
 end
 
@@ -101,7 +105,7 @@ end
 do
 	local PrevLuaExportStop=LuaExportStop
 	LuaExportStop=function()
-		Myfunction2:Stop()
+		f_telemetryFC:Stop()
 		if PrevLuaExportStop then
 			PrevLuaExportStop()
 		end
