@@ -55,6 +55,8 @@ public final class Display extends View {
 	private HashMap<String, String> emiterNames;
 	private HashSet<String> airborneTypes;
 	
+	private int cycle = 0;
+	
 	public Display(Context context) {
 		super(context);
 		init();
@@ -276,6 +278,9 @@ public final class Display extends View {
 	private void drawThreats(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 
+		if (cycle++ > 10) // flickering cycle
+			cycle = 0;
+		
 		// iterate all emiters
 		JSONArray emiters;
 		float maxPriority = 0;
@@ -318,7 +323,7 @@ public final class Display extends View {
 				}
 				
 				Time currentTime  = new Time();
-				if (signalType.contentEquals("lock") && (currentTime.second % 2 == 0)) { // draw circle - missile launch
+				if (signalType.contentEquals("lock") && cycle < 5) { // draw circle - missile launch
 					canvas.drawCircle(x, y, 50f, symbolPaint);
 				}
 				
@@ -329,7 +334,7 @@ public final class Display extends View {
 				}
 				
 				if (signalType.contentEquals("missile_radio_guided")) { // draw circle - missile in the air
-					if (currentTime.second % 2 == 0)
+					if (cycle < 5)
 						canvas.drawCircle(x, y, 50f, symbolPaint);
 					canvas.drawText("M", x, y + 15f, symbolTextPaint);
 				}
