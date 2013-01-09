@@ -93,74 +93,72 @@ public final class Display extends View {
 		// air
 		emiterNames = new HashMap<String, String>(50);
 		emiterNames.put("mig-23", 	"23");
-		emiterNames.put("mig-29", 	"29");
+		emiterNames.put("mig-29c", 	"29");
 		emiterNames.put("su-27", 	"29");
 		emiterNames.put("su-33", 	"29");
 		emiterNames.put("mig-31", 	"31");
 		emiterNames.put("su-30", 	"30");
-		emiterNames.put("f-4e", 	"F4");
-		emiterNames.put("f-14a", 	"14");
-		emiterNames.put("f-15c", 	"15");
-		emiterNames.put("f-16c", 	"16");
-		emiterNames.put("f/a-18c", 	"18");
+		emiterNames.put("F-4E", 	"F4");
+		emiterNames.put("f-14A", 	"14");
+		emiterNames.put("F-15C", 	"15");
+		emiterNames.put("F-16c", 	"16");
+		emiterNames.put("f-18a", 	"18");
+		emiterNames.put("f-18c", 	"18");
 		emiterNames.put("a-50", 	"50");
-		emiterNames.put("e-2c", 	"E2");
-		emiterNames.put("e-3c", 	"E3");
+		emiterNames.put("e-2c hawkeye", "E2");
+		emiterNames.put("e-3a", 	"E3");
 		
 		//ship
-		emiterNames.put("Albatros",		"HP");
-		emiterNames.put("Kuznetsov",	"SW");
-		emiterNames.put("Rezky",		"TP");
-		emiterNames.put("Moskva", 		"T2");
+		emiterNames.put("Albatros ",		"HP");
+		emiterNames.put("TAKR Kuznetsov",	"SW");
+		emiterNames.put("Rezky ",		"TP");
+		emiterNames.put("Moscow", 		"T2");
 		emiterNames.put("Neustrashimy", "TP");
-		emiterNames.put("Carl Vinson", 	"SP");
-		emiterNames.put("Oliver H. Perry", "SM");
-		emiterNames.put("CG-47 Ticonderoga", "SM");
+		emiterNames.put("CVN-70 Vinson", 	"SP");
+		emiterNames.put("FFG-7 Oliver H. Perry class", "SM");
+		emiterNames.put("SG-47 Ticonderoga class", "SM");
 		
 		// ground
-		emiterNames.put("S-300PS 40V6M", 	"10");
-		emiterNames.put("S-300PS 40V6MD", 	"CS");
-		emiterNames.put("S-300PS 5N63S", 	"10");
-		emiterNames.put("S-300PS 64N6E", 	"BB");
-		emiterNames.put("Buk 9S18M1", 		"SD");
-		emiterNames.put("Buk 9A310M1", 		"11");
-		emiterNames.put("Kub 1S91",		 	"6");
-		emiterNames.put("Osa 9A22", 		"8");
-		emiterNames.put("Strela-10 9A33", 	"13");
-		emiterNames.put("PU-13 Ranzhir", 	"DE");
-		emiterNames.put("Tor 9A331", 		"15");
-		emiterNames.put("2S6 Tuguska", 		"S6");
-		emiterNames.put("ZSU-23-4 Shilka", 	"23");
-		emiterNames.put("2S6 Tuguska", 		"S6");
-		emiterNames.put("Roland ADS", 		"RO");
-		emiterNames.put("Patriot",	 		"P");
-		emiterNames.put("Gepard", 			"GP");
-		emiterNames.put("I-HAWK PAR", 		"HA");
-		emiterNames.put("Hawk track radar", "H");
-		emiterNames.put("Vulcan", 			"VU");
-		emiterNames.put("S-125 P-19 radar", "FF");
-		emiterNames.put("S-125 SNR", 		"LB");		
+		emiterNames.put("s-300ps 40b6m tr", 	"10");
+		emiterNames.put("s-300ps 40b6md sr", 	"CS");
+		emiterNames.put("s-300ps 64h6e sr", 	"BB");
+		emiterNames.put("buk 9s18m1 sr", 		"SD");
+		emiterNames.put("buk 9a310m1 ln", 		"11");
+		emiterNames.put("kub 1s91 str",		 	"6");
+		emiterNames.put("osa 9a33 ln", 		"08");
+		emiterNames.put("strela-10 9a35", 	"13");
+		emiterNames.put("Dog Ear Radar", 	"DE");
+		emiterNames.put("tor 9a331", 		"15");
+		emiterNames.put("tunguska 2c6m", 		"S6");
+		emiterNames.put("shilka zsu-23-4", 	"23");
+		emiterNames.put("roland ads", 		"RO");
+		emiterNames.put("patriot cp",	 		"P");
+		emiterNames.put("gepard", 			"GP");
+		emiterNames.put("hawk ln", 		"HA");
+		emiterNames.put("hawk tr", "H");
+		emiterNames.put("M163 Vulcan", 			"VU");		
 		
 		// init emiter types
 		airborneTypes = new HashSet<String>(20);
 		airborneTypes.add("mig-23");
-		airborneTypes.add("mig-29");
+		airborneTypes.add("mig-29c");
 		airborneTypes.add("su-27");
 		airborneTypes.add("su-33");
 		airborneTypes.add("mig-31");
 		airborneTypes.add("su-30");
-		airborneTypes.add("f-4e");
-		airborneTypes.add("f-14a");
-		airborneTypes.add("f-15c");
-		airborneTypes.add("f-16c");
-		airborneTypes.add("f/a-18c");
+		airborneTypes.add("F-4E");
+		airborneTypes.add("f-14A");
+		airborneTypes.add("F-15C");
+		airborneTypes.add("F-16C");
+		airborneTypes.add("f-18a");
+		airborneTypes.add("f-18c");
 		airborneTypes.add("a-50");
-		airborneTypes.add("e-2c");
-		airborneTypes.add("e-3c");
+		airborneTypes.add("e-2c hawkeye");
+		airborneTypes.add("e-3a");
 		
 		// init test threats
 		try {
-			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':0.4, 'Azimuth':0.6, 'Priority':200, 'SignalType':'scan', 'Type':'mig-29'}, {'ID':'2', 'Power':0.8, 'Azimuth':-1.2, 'Priority':210, 'SignalType':'lock', 'Type':'su-30'}]}").nextValue();
+			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':0.4, 'Azimuth':0.6, 'Priority':200, 'SignalType':'scan', 'Type':'mig-29'}, {'ID':'2', 'Power':0.8, 'Azimuth':-1.2, 'Priority':210, 'SignalType':'missile_radio_guided', 'Type':'su-30'}]}").nextValue();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
