@@ -1,5 +1,8 @@
 package com.portman.tews;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +51,9 @@ public final class Display extends View {
 	
 	private JSONObject jsonThreats = null;
 	
+	private HashMap<String, String> emiterNames;
+	private HashSet<String> airborneTypes;
+	
 	public Display(Context context) {
 		super(context);
 		init();
@@ -82,9 +88,78 @@ public final class Display extends View {
 	private void init() {
 		initDrawingTools();
 		
+		// init emiter names
+		// air
+		emiterNames = new HashMap<String, String>(50);
+		emiterNames.put("mig-23", 	"23");
+		emiterNames.put("mig-29", 	"29");
+		emiterNames.put("su-27", 	"29");
+		emiterNames.put("su-33", 	"29");
+		emiterNames.put("mig-31", 	"31");
+		emiterNames.put("su-30", 	"30");
+		emiterNames.put("f-4e", 	"F4");
+		emiterNames.put("f-14a", 	"14");
+		emiterNames.put("f-15c", 	"15");
+		emiterNames.put("f-16c", 	"16");
+		emiterNames.put("f/a-18c", 	"18");
+		emiterNames.put("a-50", 	"50");
+		emiterNames.put("e-2c", 	"E2");
+		emiterNames.put("e-3c", 	"E3");
+		
+		//ship
+		emiterNames.put("Albatros",		"HP");
+		emiterNames.put("Kuznetsov",	"SW");
+		emiterNames.put("Rezky",		"TP");
+		emiterNames.put("Moskva", 		"T2");
+		emiterNames.put("Neustrashimy", "TP");
+		emiterNames.put("Carl Vinson", 	"SP");
+		emiterNames.put("Oliver H. Perry", "SM");
+		emiterNames.put("CG-47 Ticonderoga", "SM");
+		
+		// ground
+		emiterNames.put("S-300PS 40V6M", 	"10");
+		emiterNames.put("S-300PS 40V6MD", 	"CS");
+		emiterNames.put("S-300PS 5N63S", 	"10");
+		emiterNames.put("S-300PS 64N6E", 	"BB");
+		emiterNames.put("Buk 9S18M1", 		"SD");
+		emiterNames.put("Buk 9A310M1", 		"11");
+		emiterNames.put("Kub 1S91",		 	"6");
+		emiterNames.put("Osa 9A22", 		"8");
+		emiterNames.put("Strela-10 9A33", 	"13");
+		emiterNames.put("PU-13 Ranzhir", 	"DE");
+		emiterNames.put("Tor 9A331", 		"15");
+		emiterNames.put("2S6 Tuguska", 		"S6");
+		emiterNames.put("ZSU-23-4 Shilka", 	"23");
+		emiterNames.put("2S6 Tuguska", 		"S6");
+		emiterNames.put("Roland ADS", 		"RO");
+		emiterNames.put("Patriot",	 		"P");
+		emiterNames.put("Gepard", 			"GP");
+		emiterNames.put("I-HAWK PAR", 		"HA");
+		emiterNames.put("Hawk track radar", "H");
+		emiterNames.put("Vulcan", 			"VU");
+		emiterNames.put("S-125 P-19 radar", "FF");
+		emiterNames.put("S-125 SNR", 		"LB");		
+		
+		// init emiter types
+		airborneTypes = new HashSet<String>(20);
+		airborneTypes.add("mig-23");
+		airborneTypes.add("mig-29");
+		airborneTypes.add("su-27");
+		airborneTypes.add("su-33");
+		airborneTypes.add("mig-31");
+		airborneTypes.add("su-30");
+		airborneTypes.add("f-4e");
+		airborneTypes.add("f-14a");
+		airborneTypes.add("f-15c");
+		airborneTypes.add("f-16c");
+		airborneTypes.add("f/a-18c");
+		airborneTypes.add("a-50");
+		airborneTypes.add("e-2c");
+		airborneTypes.add("e-3c");
+		
 		// init test threats
 		try {
-			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':0, 'Azimuth':2, 'Priority':200, 'SignalType':'scan', 'Type':'mig-29s'}]}").nextValue();
+			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':0.4, 'Azimuth':0.6, 'Priority':200, 'SignalType':'scan', 'Type':'mig-29'}, {'ID':'2', 'Power':0.8, 'Azimuth':-1.2, 'Priority':210, 'SignalType':'lock', 'Type':'su-30'}]}").nextValue();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,7 +204,7 @@ public final class Display extends View {
 		symbolTextPaint.setAntiAlias(true);
 		symbolTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
 		symbolTextPaint.setTextAlign(Paint.Align.CENTER);
-		symbolTextPaint.setTextSize(50f);
+		symbolTextPaint.setTextSize(40f);
 
 		symbolPaint = new Paint();
 		symbolPaint.setAntiAlias(true);
@@ -209,12 +284,21 @@ public final class Display extends View {
 
 		// iterate all emiters
 		JSONArray emiters;
+		float maxPriority = 0;
+		
 		try {
 			emiters = jsonThreats.getJSONArray("Emiters");
+			
+			// find max priority
+			for (int i = 0; i < emiters.length(); i++) {
+			    JSONObject emiter = emiters.getJSONObject(i);
+			    float priority = (float) (emiter.getDouble("Priority"));
+			    if (priority > maxPriority)
+			    	maxPriority = priority;
+			}
 
 			for (int i = 0; i < emiters.length(); i++) {
 			    JSONObject emiter = emiters.getJSONObject(i);
-			    String id = emiter.getString("ID");
 			    float azimuth = (float) (emiter.getDouble("Azimuth") * 180f/ Math.PI);
 			    float priority = (float) (emiter.getDouble("Priority")); // 160, 180, 360
 			    float power = (float) (emiter.getDouble("Power")); // 0 - 1 (> 0,5 inner circle)
@@ -233,11 +317,20 @@ public final class Display extends View {
 				canvas.rotate(-azimuth, x, y + 15f);
 				
 				if (!signalType.contentEquals("missile_radio_guided")) {
-					canvas.drawText(type, x, y + 15f, symbolTextPaint);
+					if (!emiterNames.containsKey(type))
+						canvas.drawText(type, x, y + 15f, symbolTextPaint);
+					else
+						canvas.drawText(emiterNames.get(type), x, y + 15f, symbolTextPaint);
 				}
 				
 				if (signalType.contentEquals("lock")) { // draw circle - missile launch
 					canvas.drawCircle(x, y, 50f, symbolPaint);
+				}
+				
+				// check airborne
+				if (airborneTypes.contains(type) && !signalType.contentEquals("missile_radio_guided")) {
+					canvas.drawLine(490f, 480f, 500f, 470f, symbolPaint);
+					canvas.drawLine(500f, 470f, 510f, 480f, symbolPaint);					
 				}
 				
 				if (signalType.contentEquals("missile_radio_guided")) { // draw circle - missile in the air
@@ -245,7 +338,7 @@ public final class Display extends View {
 					canvas.drawText("M", x, y + 15f, symbolTextPaint);
 				}
 				
-				if (priority > 100 ) { // draw diamond - high priority
+				if (priority == maxPriority) { // draw diamond - high priority
 					canvas.save(Canvas.MATRIX_SAVE_FLAG);
 					canvas.rotate(45, x, y);
 					canvas.drawRect(470f, 470f, 530f, 530f, symbolPaint);

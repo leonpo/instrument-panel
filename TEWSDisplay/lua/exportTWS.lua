@@ -25,7 +25,7 @@ ActivityNextEvent=function(self, t)
 	
 	-- read from TWS FC3 export
 	local threats = LoGetTWSInfo()
-	local jsonThreats = "{ 'Mode':1.0, 'Emiters':[{ 'ID':'test', 'Power':1.0, 'Azimuth':0.8, 'Priority':1.0, 'SignalType':'AAA', 'Type':'BBB' }] }\n"
+	local jsonThreats = "{ 'Mode':1.0, 'Emiters':[{ 'ID':'test', 'Power':0.5, 'Azimuth':0.8, 'Priority':150, 'SignalType':'scan', 'Type':'TEST' }] }\n"
 	if threats then		
 		-- add emiters to json
 		local jsonEmiters = "[ "
