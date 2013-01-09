@@ -54,7 +54,7 @@ ActivityNextEvent=function(self, t)
 	end)
 	my_send()
 	
-	return tNext + 1
+	return tNext + 0.1
 end,
 
 Stop=function(self)
