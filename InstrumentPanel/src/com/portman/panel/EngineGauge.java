@@ -110,13 +110,13 @@ public final class EngineGauge extends View {
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
-		rimPaint.setColor(Color.BLACK);
+		rimPaint.setColor(Color.LTGRAY);
 
 		rimCirclePaint = new Paint();
 		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(0.5f);
+		rimCirclePaint.setStrokeWidth(1f);
 
 		float rimSize = 2f;
 		faceRect = new RectF();
@@ -216,8 +216,6 @@ public final class EngineGauge extends View {
 	private void drawRim(Canvas canvas) {
 		// first, draw the metallic body
 		canvas.drawOval(rimRect, rimPaint);
-		// now the outer rim circle
-		canvas.drawOval(rimRect, rimCirclePaint);
 	}
 	
 	private void drawFace(Canvas canvas) {		

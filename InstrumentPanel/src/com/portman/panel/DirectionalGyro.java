@@ -84,13 +84,13 @@ public final class DirectionalGyro extends View {
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
-		rimPaint.setColor(Color.BLACK);
+		rimPaint.setColor(Color.LTGRAY);
 
 		rimCirclePaint = new Paint();
 		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(5f);
+		rimCirclePaint.setStrokeWidth(10f);
 
 		float rimSize = 20f;
 		faceRect = new RectF();
@@ -160,8 +160,6 @@ public final class DirectionalGyro extends View {
 	private void drawRim(Canvas canvas) {
 		// first, draw the metallic body
 		canvas.drawOval(rimRect, rimPaint);
-		// now the outer rim circle
-		canvas.drawOval(rimRect, rimCirclePaint);
 	}
 	
 	private void drawFace(Canvas canvas) {		

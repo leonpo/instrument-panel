@@ -18,6 +18,7 @@ import android.graphics.Typeface;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -171,7 +172,7 @@ public final class Display extends View {
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
-		rimPaint.setColor(Color.BLACK);
+		rimPaint.setColor(Color.LTGRAY);
 
 		rimCirclePaint = new Paint();
 		rimCirclePaint.setAntiAlias(true);
@@ -251,8 +252,6 @@ public final class Display extends View {
 	private void drawRim(Canvas canvas) {
 		// first, draw the metallic body
 		canvas.drawOval(rimRect, rimPaint);
-		// now the outer rim circle
-		//canvas.drawOval(rimRect, rimCirclePaint);
 	}
 	
 	private void drawFace(Canvas canvas) {		
@@ -323,7 +322,8 @@ public final class Display extends View {
 						canvas.drawText(emiterNames.get(type), x, y + 15f, symbolTextPaint);
 				}
 				
-				if (signalType.contentEquals("lock")) { // draw circle - missile launch
+				Time currentTime  = new Time();
+				if (signalType.contentEquals("lock") && (currentTime.second % 2 == 0)) { // draw circle - missile launch
 					canvas.drawCircle(x, y, 50f, symbolPaint);
 				}
 				
@@ -334,7 +334,8 @@ public final class Display extends View {
 				}
 				
 				if (signalType.contentEquals("missile_radio_guided")) { // draw circle - missile in the air
-					canvas.drawCircle(x, y, 50f, symbolPaint);
+					if (currentTime.second % 2 == 0)
+						canvas.drawCircle(x, y, 50f, symbolPaint);
 					canvas.drawText("M", x, y + 15f, symbolTextPaint);
 				}
 				

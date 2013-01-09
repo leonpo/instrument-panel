@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
  
@@ -41,6 +42,8 @@ public class PanelActivity extends Activity implements OnClickListener {
    public void onCreate(Bundle savedInstanceState) {
 	   super.onCreate(savedInstanceState);
 	   setContentView(R.layout.activity_panel);
+	   
+	   Log.i("PanelActivity", "onCreate");
 	   
 	   // find controls	   
 	   mAirspeed = (Airspeed) findViewById(R.id.airspeed);
@@ -99,8 +102,12 @@ public class PanelActivity extends Activity implements OnClickListener {
    @Override
    protected void onStop() {
 	   super.onStop();
+	   
+	   Log.i("PanelActivity", "OnStop");
+	   
 	   try {
 		   // make sure you close the socket upon exiting
+		   this.myCommsThread.interrupt();
 		   ss.close();
 	   } catch (IOException e) {
 		   e.printStackTrace();
@@ -112,6 +119,7 @@ public class PanelActivity extends Activity implements OnClickListener {
 		   switch (msg.what) {
 		   case MSG_ID:			   
 			   try {
+				   Log.i("PanelActivity", "handleMessage: " + mClientMsg);
 				   // parse json
 				   JSONObject object = (JSONObject) new JSONTokener(mClientMsg).nextValue();
 				   
