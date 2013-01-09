@@ -192,7 +192,7 @@ public final class Display extends View {
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		scalePaint.setColor(Color.GREEN);
-		scalePaint.setStrokeWidth(5f);
+		scalePaint.setStrokeWidth(10f);
 		scalePaint.setAntiAlias(true);
 		
 		float scalePosition = 30f;
@@ -267,11 +267,8 @@ public final class Display extends View {
 		canvas.drawLine(460f, 500f, 540f, 500f, scalePaint);
 		canvas.drawLine(500f, 460f, 500f, 540f, scalePaint);
 		
-		for (int i = 0; i < totalNicks; ++i) {
-			float y1 = scaleRect.top;
-			float y2 = y1 + 5f;
-			
-			canvas.drawLine(500f, y1, 500f, y2, scalePaint);
+		for (int i = 0; i < totalNicks; ++i) {			
+			canvas.drawCircle(500f, scaleRect.top, 5, scalePaint);
 	
 			canvas.rotate(degreesPerNick, 500f, 500f);
 		}
