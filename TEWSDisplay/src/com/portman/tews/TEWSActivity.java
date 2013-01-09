@@ -30,6 +30,8 @@ public class TEWSActivity extends Activity {
 	   super.onCreate(savedInstanceState);
 	   setContentView(R.layout.activity_tews);
 	   
+	   Log.i("TEWSActivity", "onCreate");
+	   
 	   // find controls	   
 	   mDisplay = (Display) findViewById(R.id.display);
 	   	  	 
@@ -41,8 +43,12 @@ public class TEWSActivity extends Activity {
    @Override
    protected void onStop() {
 	   super.onStop();
+	   
+	   Log.i("TEWSActivity", "OnStop");
+	   
 	   try {
 		   // make sure you close the socket upon exiting
+		   this.myCommsThread.interrupt();
 		   ss.close();
 	   } catch (IOException e) {
 		   e.printStackTrace();
@@ -77,6 +83,7 @@ public class TEWSActivity extends Activity {
 		   Socket s = null;
 		   try {
 			   ss = new ServerSocket(SERVERPORT );
+			   Log.i("TEWSActivity", "Socket created");
 		   } catch (IOException e) {
 			   e.printStackTrace();
 		   }
@@ -87,6 +94,7 @@ public class TEWSActivity extends Activity {
 			   try {
 				   if (s == null)
 					   s = ss.accept();
+				   Log.i("TEWSActivity", "Socket after accept");
 				   BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
 				   String st = null;
 				   st = input.readLine();
@@ -102,6 +110,7 @@ public class TEWSActivity extends Activity {
 				   e.printStackTrace();
 			   }
 		   }
+		   Log.i("TEWSActivity", "Comms Thread is interrupted");
 	   }
     }
 }

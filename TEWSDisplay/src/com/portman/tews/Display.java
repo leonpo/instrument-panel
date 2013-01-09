@@ -84,7 +84,7 @@ public final class Display extends View {
 		
 		// init test threats
 		try {
-			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':0.8, 'Azimuth':2, 'Priority':200, 'SignalType':'scan', 'Type':'mig-29s'}]}").nextValue();
+			jsonThreats = (JSONObject) new JSONTokener("{ 'Mode':1, 'Emiters':[{'ID':'1', 'Power':0, 'Azimuth':2, 'Priority':200, 'SignalType':'scan', 'Type':'mig-29s'}]}").nextValue();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -229,7 +229,7 @@ public final class Display extends View {
 				canvas.save(Canvas.MATRIX_SAVE_FLAG);
 				float x = 500f;
 				float y = 500f;
-				canvas.translate(0f, -(1f - power) * 500f);
+				canvas.translate(0f, -100 - (1f - power) * 300f);
 				canvas.rotate(-azimuth, x, y + 15f);
 				
 				if (!signalType.contentEquals("missile_radio_guided")) {
