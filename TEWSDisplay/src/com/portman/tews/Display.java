@@ -121,26 +121,28 @@ public final class Display extends View {
 		emiterNames.put("SG-47 Ticonderoga class", "SM");
 		
 		// ground
-		emiterNames.put("s-300ps 40b6m tr", 	"10");
-		emiterNames.put("s-300ps 40b6md sr", 	"CS");
-		emiterNames.put("s-300ps 64h6e sr", 	"BB");
-		emiterNames.put("buk 9s18m1 sr", 		"SD");
-		emiterNames.put("buk 9a310m1 ln", 		"11");
-		emiterNames.put("kub 1s91 str",		 	"6");
+		emiterNames.put("s-300ps 40b6m tr", "10");
+		emiterNames.put("s-300ps 40b6md sr","CS");
+		emiterNames.put("s-300ps 64h6e sr", "BB");
+		emiterNames.put("buk 9s18m1 sr", 	"SD");
+		emiterNames.put("buk 9a310m1 ln", 	"11");
+		emiterNames.put("kub 1s91 str",		"6");
 		emiterNames.put("osa 9a33 ln", 		"08");
 		emiterNames.put("strela-10 9a35", 	"13");
 		emiterNames.put("Dog Ear Radar", 	"DE");
 		emiterNames.put("tor 9a331", 		"15");
-		emiterNames.put("tunguska 2c6m", 		"S6");
+		emiterNames.put("tunguska 2c6m", 	"S6");
 		emiterNames.put("shilka zsu-23-4", 	"23");
 		emiterNames.put("roland ads", 		"RO");
-		emiterNames.put("patriot cp",	 		"P");
+		emiterNames.put("patriot cp",	 	"P");
+		emiterNames.put("patriot str",	 	"P");
 		emiterNames.put("gepard", 			"GP");
-		emiterNames.put("hawk ln", 		"HA");
-		emiterNames.put("hawk tr", "H");
-		emiterNames.put("M163 Vulcan", 			"VU");		
+		emiterNames.put("hawk ln", 			"HA");
+		emiterNames.put("hawk tr", 			"H");
+		emiterNames.put("M163 Vulcan", 		"VU");
+		emiterNames.put("55g6 ewr station", "S6");
 		
-		// init emiter types
+		// init air emiter types
 		airborneTypes = new HashSet<String>(20);
 		airborneTypes.add("mig-23");
 		airborneTypes.add("mig-29c");
@@ -172,12 +174,12 @@ public final class Display extends View {
 
 		rimPaint = new Paint();
 		rimPaint.setAntiAlias(true);
-		rimPaint.setColor(Color.LTGRAY);
+		rimPaint.setColor(Color.GRAY);
 
 		rimCirclePaint = new Paint();
 		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
-		rimCirclePaint.setColor(Color.GRAY);
+		rimCirclePaint.setColor(Color.DKGRAY);
 		rimCirclePaint.setStrokeWidth(10f);
 
 		float rimSize = 20f;
@@ -315,15 +317,12 @@ public final class Display extends View {
 				canvas.translate(0f, -100 - (1f - power) * 300f);
 				canvas.rotate(-azimuth, x, y + 15f);
 				
-				if (!signalType.contentEquals("missile_radio_guided")) {
-					if (!emiterNames.containsKey(type))
-						canvas.drawText(type, x, y + 15f, symbolTextPaint);
-					else
-						canvas.drawText(emiterNames.get(type), x, y + 15f, symbolTextPaint);
-				}
+				if (!emiterNames.containsKey(type))
+					canvas.drawText(type, x, y + 15f, symbolTextPaint);
+				else
+					canvas.drawText(emiterNames.get(type), x, y + 15f, symbolTextPaint);
 				
-				Time currentTime  = new Time();
-				if (signalType.contentEquals("lock") && cycle < 5) { // draw circle - missile launch
+				if (signalType.contentEquals("missile_radio_guided") && cycle < 5) { // draw circle - missile launch
 					canvas.drawCircle(x, y, 50f, symbolPaint);
 				}
 				
@@ -333,11 +332,11 @@ public final class Display extends View {
 					canvas.drawLine(500f, 470f, 510f, 480f, symbolPaint);					
 				}
 				
-				if (signalType.contentEquals("missile_radio_guided")) { // draw circle - missile in the air
-					if (cycle < 5)
-						canvas.drawCircle(x, y, 50f, symbolPaint);
-					canvas.drawText("M", x, y + 15f, symbolTextPaint);
-				}
+				//if (signalType.contentEquals("missile_radio_guided")) { // draw circle - missile in the air
+				//	if (cycle < 5)
+				//		canvas.drawCircle(x, y, 50f, symbolPaint);
+				//	canvas.drawText("M", x, y + 15f, symbolTextPaint);
+				//}
 				
 				if (priority == maxPriority) { // draw diamond - high priority
 					canvas.save(Canvas.MATRIX_SAVE_FLAG);
