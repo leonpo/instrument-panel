@@ -10,7 +10,7 @@ Start=function(self)
 	package.cpath = package.cpath..";.\\LuaSocket\\?.dll"
 	socket = require("socket")
 	
-	my_init = socket.protect(function()	
+	local my_init = socket.protect(function()	
 		-- export telemetry to instrumeny panel on android
 		host_telemetryFC = host_telemetryFC or "localhost"  	 -- android IP
 		port_telemetryFC = port_telemetryFC or 6000
@@ -51,19 +51,19 @@ ActivityNextEvent=function(self, t)
 	local Fuel_Tank_Right = LoGetEngineInfo().fuel_internal * 2.2 /100
 	local Fuel_Tank_Fuselage = LoGetEngineInfo().fuel_external * 2.2 / 100
 		
-	my_send = socket.protect(function()
+	local my_send = socket.protect(function()
 		if c_telemetryFC then
 			socket.try(c_telemetryFC:send(string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f,'AngleOfAttack':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CompassHeading':%.2f, 'Landing_Gear_Handle':%.2f, 'Manifold_Pressure':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'AHorizon_PitchShift':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f, 'Fuel_Tank_Left':%.2f, 'Fuel_Tank_Right':%.2f, 'Fuel_Tank_Fuselage':%.2f }\n", AirspeedNeedle, Altimeter_10000_footPtr, Altimeter_1000_footPtr, Altimeter_100_footPtr, Variometer, AngleOfAttack, TurnNeedle, Slipball, CompassHeading, Landing_Gear_Handle, Manifold_Pressure, Engine_RPM, AHorizon_Pitch, AHorizon_Bank, AHorizon_PitchShift, GyroHeading, Oil_Temperature, Oil_Pressure, Fuel_Pressure, Fuel_Tank_Left, Fuel_Tank_Right, Fuel_Tank_Fuselage)))
 		end
 	end)
 	my_send()
 	
-	return tNext + 1	
+	return tNext + 0.1	
 end,
 
 
 Stop=function(self)
-	my_close = socket.protect(function()
+	local my_close = socket.protect(function()
 		if c_telemetryFC then
 			c_telemetryFC:close()
 		end	

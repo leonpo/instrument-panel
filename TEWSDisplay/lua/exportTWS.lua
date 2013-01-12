@@ -9,13 +9,13 @@ Start=function(self)
 	package.cpath = package.cpath..";.\\LuaSocket\\?.dll"
 	socket = require("socket")
 	
-	my_init = socket.protect(function()	
+	local my_init = socket.protect(function()	
 		-- export telemetry to instrumeny panel on android
-		host_tews = host_tews or "10.0.0.10"  	 -- android IP
+		host_tews = host_tews or "10.0.0.3"  	 -- android IP
 		port_tews = port_tews or 6000
 		c_tews = socket.try(socket.connect(host_tews, port_tews)) -- connect to the listener socket
 		c_tews:setoption("tcp-nodelay",true) -- set immediate transmission mode
-		c_tews:settimeout(.01)
+		c_tews:settimeout(.1)
 	end)
 	my_init()	
 end,
@@ -35,7 +35,7 @@ ActivityNextEvent=function(self, t)
 			if threatType then
 				jsonEmit = string.format("{ 'ID':'%s', 'Power':%f, 'Azimuth':%f, 'Priority':%f, 'SignalType':'%s', 'Type':'%s' }", emit.ID, emit.Power, emit.Azimuth, emit.Priority, emit.SignalType, threatType)		
 			else
-				jsonEmit = string.format("{ 'ID':'%s', 'Power':%f, 'Azimuth':%f, 'Priority':%f, 'SignalType':'%s', 'Type':'N/A' }", emit.ID, emit.Power, emit.Azimuth, emit.Priority, emit.SignalType)		
+				jsonEmit = string.format("{ 'ID':'%s', 'Power':%f, 'Azimuth':%f, 'Priority':%f, 'SignalType':'%s', 'Type':'U' }", emit.ID, emit.Power, emit.Azimuth, emit.Priority, emit.SignalType)		
 			end
 			if jsonEmiters ~= "[ " then
 				jsonEmiters = jsonEmiters .. ","
@@ -47,7 +47,7 @@ ActivityNextEvent=function(self, t)
 		jsonThreats = string.format("{ 'Mode':%f, 'Emiters':%s }\n", threats.Mode, jsonEmiters)		
 	end
 	
-	my_send = socket.protect(function()
+	local my_send = socket.protect(function()
 		if c_tews then
 			socket.try(c_tews:send(jsonThreats))
 		end
@@ -58,7 +58,7 @@ ActivityNextEvent=function(self, t)
 end,
 
 Stop=function(self)
-	my_close = socket.protect(function()
+	local my_close = socket.protect(function()
 		if c_tews then
 			c_tews:close()
 		end	

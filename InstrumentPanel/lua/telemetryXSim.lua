@@ -2,7 +2,7 @@
 -- Export start 
 ---------------------------------------------------------------------------------------------------
 
-Myfunction =
+f_xsim =
 
 {
 Start=function(self) 
@@ -10,13 +10,13 @@ Start=function(self)
 	package.cpath = package.cpath..";.\\LuaSocket\\?.dll"
 	socket = require("socket")
 	
-	my_init = socket.protect(function()
+	local my_init = socket.protect(function()
 		-- export telemetry to x-sim extractor
-		host1 = host1 or "localhost"
-		port1 = port1 or 8080
-		c1 = socket.try(socket.connect(host1, port1)) -- connect to the listener socket
-		c1:setoption("tcp-nodelay",true) -- set immediate transmission mode
-		c1:settimeout(.01)	
+		host_xsim = host_xsim or "localhost"
+		port_xsim= port_xsim or 8080
+		c_xsim = socket.try(socket.connect(host_xsim, port_xsim)) -- connect to the listener socket
+		c_xsim:setoption("tcp-nodelay",true) -- set immediate transmission mode
+		c_xsim:settimeout(.01)	
 	end)
 	my_init()	
 end,
@@ -35,17 +35,19 @@ AfterNextFrame=function(self)
 	local user4	 = 4
 	local user5	 = 5
 	local user6	 = 6
+
 	
 	-- reduce forces on ground
-	if altRad < 3 then
-		accel.x = accel.x * 0.25
-		accel.y = accel.y * 0.25
-		accel.z = accel.z * 0.25
+	local speed = LoGetTrueAirSpeed()
+	if speed < 30 then
+		accel.x = accel.x * 0.2
+		accel.y = accel.y * 0.2
+		accel.z = accel.z * 0.2
 	end
 	
-	my_send = socket.protect(function()
-		if c1 then
-			socket.try(c1:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altBar, altRad, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
+	local my_send = socket.protect(function()
+		if c_xsim then
+			socket.try(c_xsim:send(string.format("%.3f %.2f %.2f %.2f %.2f %.2f %.2f %.0f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f \n", t, altBar, altRad, pitch*1000.0, bank*1000.0, yaw*1000.0, accel.x*1000.0, angle*1000, accel.y*1000.0, accel.z*1000.0, accel.x*1000.0, (accel.y-1)*1000.0, accel.z*1000.0, user4, user5, user6, 7)))
 		end
 	end)
 	my_send()
@@ -54,9 +56,9 @@ end,
 
 
 Stop=function(self)
-	my_close = socket.protect(function()
-		if c1 then
-			c1:close()
+	local my_close = socket.protect(function()
+		if c_xsim then
+			c_xsim:close()
 		end	
 	end)
 	my_close()
@@ -72,7 +74,7 @@ end
 do
 	local PrevLuaExportStart=LuaExportStart
 	LuaExportStart=function()
-		Myfunction:Start()
+		f_xsim:Start()
 		if PrevLuaExportStart then
 			PrevLuaExportStart()
 		end
@@ -83,7 +85,7 @@ end
 do
 	local PrevLuaExportAfterNextFrame=LuaExportAfterNextFrame
 	LuaExportAfterNextFrame=function()
-		Myfunction:AfterNextFrame()
+		f_xsim:AfterNextFrame()
 		if PrevLuaExportAfterNextFrame then
 			PrevLuaExportAfterNextFrame()
 		end
@@ -94,7 +96,7 @@ end
 do
 	local PrevLuaExportStop=LuaExportStop
 	LuaExportStop=function()
-		Myfunction:Stop()
+		f_xsim:Stop()
 		if PrevLuaExportStop then
 			PrevLuaExportStop()
 		end
