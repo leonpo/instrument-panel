@@ -134,13 +134,16 @@ public final class Display extends View {
 		emiterNames.put("tunguska 2c6m", 	"S6");
 		emiterNames.put("shilka zsu-23-4", 	"23");
 		emiterNames.put("roland ads", 		"RO");
-		emiterNames.put("patriot cp",	 	"P");
-		emiterNames.put("patriot str",	 	"P");
+		emiterNames.put("patriot cp",	 	"PT");
+		emiterNames.put("patriot str",	 	"PT");
 		emiterNames.put("gepard", 			"GP");
 		emiterNames.put("hawk ln", 			"HA");
 		emiterNames.put("hawk tr", 			"H");
 		emiterNames.put("M163 Vulcan", 		"VU");
-		emiterNames.put("55g6 ewr station", "S6");
+		emiterNames.put("55g6 ewr station", "ER");
+		
+		// missiles
+		emiterNames.put("R-77 (A-12)", "M");
 		
 		// init air emiter types
 		airborneTypes = new HashSet<String>(20);
