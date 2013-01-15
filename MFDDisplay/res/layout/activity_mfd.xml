@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:keepScreenOn="true"
+    android:gravity="center" 
+    android:baselineAligned="false">
+	<com.portman.mfd.VSD android:id="@+id/vsd"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent" />
+</LinearLayout>
