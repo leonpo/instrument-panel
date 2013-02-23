@@ -18,7 +18,6 @@ import android.graphics.Typeface;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -330,7 +329,7 @@ public final class Display extends View {
 				}
 				
 				// check airborne
-				if (airborneTypes.contains(type) && !signalType.contentEquals("missile_radio_guided")) {
+				if (airborneTypes.contains(type)) {
 					canvas.drawLine(490f, 480f, 500f, 470f, symbolPaint);
 					canvas.drawLine(500f, 470f, 510f, 480f, symbolPaint);					
 				}
