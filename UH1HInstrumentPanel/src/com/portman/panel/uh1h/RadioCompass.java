@@ -298,10 +298,10 @@ public final class RadioCompass extends View {
 		drawFace(backgroundCanvas);
 	}
 		
-	public void setHeading(float compassHeading, float coursePointer1, float coursePointer2) {
-		this.compassHeading = compassHeading * 360f/(float) Math.PI;
-		this.coursePointer1 = coursePointer1 * 360f/(float) Math.PI;
-		this.coursePointer2 = coursePointer2 * 360f/(float) Math.PI;
+	public void setHeading(float coursePointer1, float coursePointer2, float compassHeading) {
+		this.compassHeading = compassHeading * 180f/(float) Math.PI;
+		this.coursePointer1 = coursePointer1 * 180f/(float) Math.PI;
+		this.coursePointer2 = coursePointer2 * 180f/(float) Math.PI;
 		invalidate();
 	}
 }
