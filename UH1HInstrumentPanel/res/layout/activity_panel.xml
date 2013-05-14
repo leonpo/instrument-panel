@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:keepScreenOn="true"
+    android:gravity="center" 
+    android:baselineAligned="false">
+	<LinearLayout android:orientation="vertical" 
+	    android:layout_height="fill_parent" 
+	    android:layout_width="fill_parent"
+	    android:layout_weight="25" 
+	    android:gravity="center">
+		<com.portman.panel.Airspeed android:id="@+id/airspeed"
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />
+		<com.portman.panel.Altimeter android:id="@+id/altimeter" 
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />
+	</LinearLayout>
+	<LinearLayout android:orientation="vertical" 
+	    android:layout_height="fill_parent" 
+	    android:layout_width="fill_parent"
+	    android:layout_weight="25" 
+	    android:gravity="center">
+		<com.portman.panel.DirectionalGyro  android:id="@+id/directional_gyro"
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />
+		<com.portman.panel.TurnIndicator android:id="@+id/turn_indicator" 	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />	
+	</LinearLayout>
+	<LinearLayout android:orientation="vertical" 
+	    android:layout_height="fill_parent" 
+	    android:layout_width="fill_parent"
+	    android:layout_weight="25" 
+	    android:gravity="center">
+		<com.portman.panel.ArtificialHorizon  android:id="@+id/artificial_horizon"
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />
+		<com.portman.panel.Variometer android:id="@+id/variometer"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />	
+	</LinearLayout>
+	<LinearLayout android:orientation="vertical" 
+	    android:layout_height="fill_parent" 
+	    android:layout_width="fill_parent"
+	    android:layout_weight="25" 
+	    android:gravity="center">
+		<com.portman.panel.Manifold android:id="@+id/manifold" 
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />
+		<com.portman.panel.RPM 		android:id="@+id/rpm"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" />
+		<com.portman.panel.EngineGauge android:id="@+id/engine_gauge"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>	
+		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_left"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>	
+		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_right"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>	
+		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_fuselage"	   
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent" 
+		    android:visibility="gone"/>		
+	</LinearLayout>
+</LinearLayout>
