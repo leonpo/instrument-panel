@@ -32,16 +32,19 @@ ActivityNextEvent=function(self, t)
 		local jsonTargets = "[ "
 		for i,target in pairs(targets) do
 			local jsonTarget = ""		
-			local targetType = LoGetNameByType(target.Type.level1, target.Type.level2, target.Type.level3, target.Type.level4)
+			if target.Type then 
+				local targetType = LoGetNameByType(target.Type.level1, target.Type.level2, target.Type.level3, target.Type.level4)
+			end
 			if targetType then
-				jsonTarget = string.format("{ 'ID':'%s', 'velocity':%f, 'distance':%f, 'convergence_velocity':%f, 'mach':%f, 'delta_psi':%f, 'fim':%f, 'fin':%f, 'course':%f, 'isjamming':'%s', 'jammer_burned':'%s', 'country':'%s', 'Type':'%s' }", target.ID, target.velocity, target.distance, target.convergence_velocity, target.delta_psi, target.fim, target.fin, target.course, target.isjamming, target.jammer_burned, target.country, targetType)		
+				jsonTarget = string.format("{ 'ID':'%s', 'distance':%f, 'convergence_velocity':%f, 'mach':%f, 'delta_psi':%f, 'fim':%f, 'fin':%f, 'course':%f, 'isjamming':'%s', 'jammer_burned':'%s', 'country':'%s', 'Type':'%s' }", target.ID, target.distance, target.convergence_velocity, target.mach, target.delta_psi, target.fim, target.fin, target.course, tostring(target.isjamming), tostring(target.jammer_burned), target.country, targetType)		
 			else
-				jsonTarget = string.format("{ 'ID':'%s', 'velocity':%f, 'distance':%f, 'convergence_velocity':%f, 'mach':%f, 'delta_psi':%f, 'fim':%f, 'fin':%f, 'course':%f, 'isjamming':'%s', 'jammer_burned':'%s', 'country':'%s', 'Type':'N/A' }", target.ID, target.velocity, target.distance, target.convergence_velocity, target.delta_psi, target.fim, target.fin, target.course, target.isjamming, target.jammer_burned, target.country)		
+				jsonTarget = string.format("{ 'ID':'%s', 'distance':%f, 'convergence_velocity':%f, 'mach':%f, 'delta_psi':%f, 'fim':%f, 'fin':%f, 'course':%f, 'isjamming':'%s', 'jammer_burned':'%s', 'country':'%s', 'Type':'NA' }", target.ID, target.distance, target.convergence_velocity, target.mach, target.delta_psi, target.fim, target.fin, target.course, tostring(target.isjamming), tostring(target.jammer_burned), target.country)		
 			end
 			if jsonTargets ~= "[ " then
 				jsonTargets = jsonTargets .. ","
 			end
 			jsonTargets = jsonTargets .. jsonTarget
+			---print(jsonTarget)
 		end
 		jsonTargets = jsonTargets .. "]"
 		
@@ -49,7 +52,7 @@ ActivityNextEvent=function(self, t)
 	end
 	
 	-- write to log
-	env.info(jsonMFD, false)
+	--print(jsonMFD)
 	
 	local my_send = socket.protect(function()
 		if c_mfd then
