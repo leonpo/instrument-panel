@@ -1,4 +1,4 @@
-package com.portman.panel;
+package com.portman.panel.uh1h;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class Altimeter extends View {
+public final class Variometer extends View {
 
-	private static final String TAG = Altimeter.class.getSimpleName();
+	private static final String TAG = Variometer.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -26,14 +26,12 @@ public final class Altimeter extends View {
 	private RectF faceRect;
 	private Paint facePaint;
 	
-	private Paint scalePaint;
-	private RectF scaleRect;
+	private Paint scalePaint;	
+	private RectF scaleRect, scaleRect2;
 	
 	private Paint titlePaint;	
 	
-	private Paint hand10000Paint;
-	private Paint hand1000Paint;
-	private Paint hand100Paint;
+	private Paint handPaint;
 	
 	private Paint backgroundPaint; 
 	// end drawing tools
@@ -41,27 +39,35 @@ public final class Altimeter extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 50;
-	private static final float degreesPerNick = 360.0f / totalNicks;	
-	private static final int minValue = 0;
-	private static final int maxValue = 10;
+	private static final int totalNicks1 = 6;
+	private static final float degreesPerNick1 = 125.0f / totalNicks1;	
+	private static final float minValue1 = -4.0f;
+	private static final float maxValue1 = -1.0f;
+	
+	private static final int totalNicks2 = 20;
+	private static final float degreesPerNick2 = 90.0f / totalNicks2;	
+	private static final float minValue2 = -1.0f;
+	private static final float maxValue2 = 1.0f;
+	
+	private static final int totalNicks3 = 6;
+	private static final float degreesPerNick3 = 125.0f / totalNicks3;	
+	private static final float minValue3 = 1.0f;
+	private static final float maxValue3 = 4.0f;
 	
 	// hand dynamics
-	private float hand10000Position = 0f;
-	private float hand1000Position = 0f;
-	private float hand100Position = 0f;
+	private float handPosition = 0f;
 	
-	public Altimeter(Context context) {
+	public Variometer(Context context) {
 		super(context);
 		init();
 	}
 
-	public Altimeter(Context context, AttributeSet attrs) {
+	public Variometer(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public Altimeter(Context context, AttributeSet attrs, int defStyle) {
+	public Variometer(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -72,9 +78,7 @@ public final class Altimeter extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		hand10000Position = bundle.getFloat("hand10000Position");
-		hand1000Position = bundle.getFloat("hand1000Position");
-		hand100Position = bundle.getFloat("hand100Position");
+		handPosition = bundle.getFloat("handPosition");
 	}
 
 	@Override
@@ -83,9 +87,7 @@ public final class Altimeter extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putFloat("hand10000Position", hand10000Position);
-		state.putFloat("hand1000Position", hand1000Position);
-		state.putFloat("hand100Position", hand100Position);
+		state.putFloat("handPosition", handPosition);
 		return state;
 	}
 
@@ -94,7 +96,7 @@ public final class Altimeter extends View {
 	}
 
 	private String getTitle() {
-		return "ALT";
+		return "VERTICAL SPEED";
 	}
 
 	private void initDrawingTools() {
@@ -125,39 +127,31 @@ public final class Altimeter extends View {
 		scalePaint.setStrokeWidth(0.5f);
 		scalePaint.setAntiAlias(true);
 		
-		scalePaint.setTextSize(8f);
+		scalePaint.setTextSize(10f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
-		scalePaint.setTextAlign(Paint.Align.CENTER);		
+		scalePaint.setTextAlign(Paint.Align.CENTER);
 		
 		float scalePosition = 3f;
 		scaleRect = new RectF();
 		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
 					  faceRect.right - scalePosition, faceRect.bottom - scalePosition);
+		float scalePosition2 = 6f;
+		scaleRect2 = new RectF();
+		scaleRect2.set(faceRect.left + scalePosition2, faceRect.top + scalePosition2,
+				  faceRect.right - scalePosition2, faceRect.bottom - scalePosition2);
 
 		titlePaint = new Paint();
 		titlePaint.setColor(Color.WHITE);
 		titlePaint.setAntiAlias(true);
 		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
 		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(8f);
+		titlePaint.setTextSize(6f);
 
-		hand10000Paint = new Paint();
-		hand10000Paint.setAntiAlias(true);
-		hand10000Paint.setColor(Color.WHITE);
-		hand10000Paint.setStrokeWidth(1f);
-		hand10000Paint.setStyle(Paint.Style.FILL_AND_STROKE);	
-		
-		hand1000Paint = new Paint();
-		hand1000Paint.setAntiAlias(true);
-		hand1000Paint.setColor(Color.WHITE);
-		hand1000Paint.setStrokeWidth(3f);
-		hand1000Paint.setStyle(Paint.Style.FILL_AND_STROKE);
-		
-		hand100Paint = new Paint();
-		hand100Paint.setAntiAlias(true);
-		hand100Paint.setColor(Color.WHITE);
-		hand100Paint.setStrokeWidth(2f);
-		hand100Paint.setStyle(Paint.Style.FILL_AND_STROKE);
+		handPaint = new Paint();
+		handPaint.setAntiAlias(true);
+		handPaint.setColor(Color.WHITE);
+		handPaint.setStrokeWidth(2f);
+		handPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -198,6 +192,8 @@ public final class Altimeter extends View {
 	private void drawRim(Canvas canvas) {
 		// first, draw the metallic body
 		canvas.drawOval(rimRect, rimPaint);
+		// now the outer rim circle
+		canvas.drawOval(rimRect, rimCirclePaint);
 	}
 	
 	private void drawFace(Canvas canvas) {		
@@ -207,68 +203,130 @@ public final class Altimeter extends View {
 	}
 
 	private void drawScale(Canvas canvas) {
-		//canvas.drawOval(scaleRect, scalePaint);
-
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		for (int i = 0; i < totalNicks; ++i) {
+		
+		canvas.drawLine(85f, 50f, 95f, 50f, scalePaint);
+		
+		canvas.rotate(100f, 50f, 50f);
+
+		for (int i = 0; i < totalNicks1; ++i) {
+			float y1 = scaleRect.top;
+			float y2 = y1 + 3f;
+			
+			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
+			
+			if (i % 2 == 0) { // every 2
+				canvas.drawLine(50f, y1, 50f, y2 + 2f, scalePaint);
+				
+				float value = nickToValue1(i);
+				String valueString = Integer.toString(Math.abs((int)value));
+				
+				// draw vertical text
+				canvas.save(Canvas.MATRIX_SAVE_FLAG);
+				canvas.rotate(- degreesPerNick1 * i - 100, 50f, y2 + 8f);
+				if (!valueString.contentEquals("4"))
+					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+				canvas.restore();
+			}
+			
+			canvas.rotate(degreesPerNick1, 50f, 50f);
+		}
+		
+		for (int i = 0; i < totalNicks2; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
 			if (i % 5 == 0) { // every 5
-				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
+				canvas.drawLine(50f, y1, 50f, y2 + 2f, scalePaint);
 				
-				int value = nickToValue(i);				
-				String valueString = Integer.toString(value);
+				float value = nickToValue2(i);
+				String valueString = Integer.toString(Math.abs((int)value));
+				if (valueString.contentEquals("5"))
+					scalePaint.setTextSize(6f);
 				
 				// draw vertical text
 				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-degreesPerNick * i, 50f, y2 + 8f);
+				canvas.rotate(- degreesPerNick2 * i - 225, 50f, y2 + 8f);
 				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+				scalePaint.setTextSize(10f);
 				canvas.restore();
 			}
 			
-			canvas.rotate(degreesPerNick, 50f, 50f);
+			canvas.rotate(degreesPerNick2, 50f, 50f);
 		}
+		
+		for (int i = 0; i <= totalNicks3; ++i) {
+			float y1 = scaleRect.top;
+			float y2 = y1 + 3f;
+			
+			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
+			
+			if (i % 2 == 0) { // every 2
+				canvas.drawLine(50f, y1, 50f, y2 + 2f, scalePaint);
+				
+				float value = nickToValue3(i);
+				String valueString = Integer.toString(Math.abs((int)value));
+				
+				// draw vertical text
+				canvas.save(Canvas.MATRIX_SAVE_FLAG);
+				canvas.rotate(- degreesPerNick3 * i - 315, 50f, y2 + 8f);
+				if (!valueString.contentEquals("4"))
+					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+				canvas.restore();
+			}
+			
+			canvas.rotate(degreesPerNick3, 50f, 50f);
+		}
+		
 		canvas.restore();		
 	}
 	
-	private int nickToValue(int nick) {
-		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		return rawValue;
+	private float nickToValue1(int nick) {
+		float shiftedValue =  minValue1 + nick * (maxValue1 - minValue1) / totalNicks1;
+		return shiftedValue;
+	}
+	
+	private float nickToValue2(int nick) {
+		float shiftedValue =  minValue2 + nick * (maxValue2 - minValue2) / totalNicks2;
+		if (Math.abs(shiftedValue) < 1f)
+			shiftedValue = shiftedValue * 10f;
+		return shiftedValue;
+	}
+	
+	private float nickToValue3(int nick) {
+		float shiftedValue =  minValue3 + nick * (maxValue3 - minValue3) / totalNicks3;
+		return shiftedValue;
 	}
 	
 	private float valueToAngle(float value) {
-		float valuePerNick = (float) (maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - minValue) / valuePerNick;
+		float angle = 0f;
+		if (value < maxValue1) {
+			float valuePerNick = (float)(maxValue1 - minValue1) / totalNicks1;
+			angle =  degreesPerNick1 * (value - minValue1) / valuePerNick + 100f;
+		} else if (value < maxValue2) {
+			float valuePerNick = (float)(maxValue2 - minValue2) / totalNicks2;
+			angle =  degreesPerNick2 * (value - minValue2) / valuePerNick + 125f + 100f;
+		} else {
+			float valuePerNick = (float)(maxValue3 - minValue3) / totalNicks3;
+			angle =  degreesPerNick3 * (value - minValue3) / valuePerNick + 215f + 100f;
+		}
+		
+		return angle;
 	}
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 40f, 40f, titlePaint);
+		canvas.drawText(title, 50f, 40f, titlePaint);
 	}
 	
 
 	private void drawHand(Canvas canvas) {
-		float hand10000Angle = valueToAngle(hand10000Position);
-		float hand1000Angle = valueToAngle(hand1000Position);
-		float hand100Angle = valueToAngle(hand100Position);
-		
+		float handAngle = valueToAngle(handPosition);
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(hand10000Angle, 50f, 50f);
-		canvas.drawLine(50f, 50f, 50f, 35f, hand10000Paint);
-		canvas.restore();
-		
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(hand1000Angle, 50f, 50f);
-		canvas.drawLine(50f, 50f, 50f, 25f, hand1000Paint);
-		canvas.restore();
-		
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(hand100Angle, 50f, 50f);
-		canvas.drawLine(50f, 50f, 50f, 15f, hand100Paint);
-		
+		canvas.rotate(handAngle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
 		canvas.restore();
 	}
 
@@ -286,7 +344,7 @@ public final class Altimeter extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale/100f, scale/100f);
+		canvas.scale(scale / 100f, scale / 100f);
 
 		drawHand(canvas);
 		
@@ -309,36 +367,21 @@ public final class Altimeter extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale/100f, scale/100f);
+		backgroundCanvas.scale(scale / 100f, scale / 100f);
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
 		drawScale(backgroundCanvas);
 		drawTitle(backgroundCanvas);		
 	}
-		
-	public void setAltimeter(float value10000, float value1000, float value100) {
-		if (value10000 < minValue) {
-			value10000 = minValue;
-		} else if (value10000 > maxValue) {
-			value10000 = maxValue;
-		}
-		hand10000Position = value10000;
-		
-		if (value1000 < minValue) {
-			value1000 = minValue;
-		} else if (value1000 > maxValue) {
-			value1000 = maxValue;
-		}
-		hand1000Position = value1000;
 
-		if (value100 < minValue) {
-			value100 = minValue;
-		} else if (value100 > maxValue) {
-			value100 = maxValue;
+	public void setVariometer(float value) {
+		if (value < minValue1) {
+			value = minValue1;
+		} else if (value > maxValue3) {
+			value = maxValue3;
 		}
-		hand100Position = value100;
-
+		handPosition = value;
 		invalidate();
 	}
 }

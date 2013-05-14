@@ -1,12 +1,12 @@
-package com.portman.panel;
+package com.portman.panel.uh1h;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class RPM extends View {
+public final class ArtificialHorizon extends View {
 
-	private static final String TAG = RPM.class.getSimpleName();
+	private static final String TAG = ArtificialHorizon.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -27,39 +27,36 @@ public final class RPM extends View {
 	private Paint facePaint;
 	
 	private Paint scalePaint;
-	private Paint scaleGreenPaint;
-	private Paint scaleRedPaint;	
 	private RectF scaleRect;
-	
-	private Paint titlePaint;	
-	
-	private Paint handPaint;
+			
+	private Paint needlePaint;
 	
 	private Paint backgroundPaint; 
 	// end drawing tools
 	
 	private Bitmap background; // holds the cached static part
 	
-	// scale configuration
-	private static final int totalNicks = 35;
-	private static final float degreesPerNick = 330.0f / totalNicks;	
-	private static final int minValue = 0;
-	private static final int maxValue = 70;
+	// scale configuration	
+	private static final float minPitchValue = (float) -Math.PI / 3.0f;
+	private static final float maxPitchValue = (float) Math.PI / 3.0f;
+	private static final float minBankValue = (float) -Math.PI;
+	private static final float maxBankValue = (float) Math.PI;
 	
 	// hand dynamics
-	private float handPosition = 0f;
+	private float pitch = 0f;
+	private float bank = 0f;
 	
-	public RPM(Context context) {
+	public ArtificialHorizon(Context context) {
 		super(context);
 		init();
 	}
 
-	public RPM(Context context, AttributeSet attrs) {
+	public ArtificialHorizon(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public RPM(Context context, AttributeSet attrs, int defStyle) {
+	public ArtificialHorizon(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -70,7 +67,8 @@ public final class RPM extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		handPosition = bundle.getFloat("handPosition");
+		pitch = bundle.getFloat("pitch");
+		bank = bundle.getFloat("bank");		
 	}
 
 	@Override
@@ -79,16 +77,13 @@ public final class RPM extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putFloat("handPosition", handPosition);
+		state.putFloat("pitch", pitch);
+		state.putFloat("bank", bank);		
 		return state;
 	}
 
 	private void init() {
 		initDrawingTools();
-	}
-
-	private String getTitle() {
-		return "RPM";
 	}
 
 	private void initDrawingTools() {
@@ -114,44 +109,21 @@ public final class RPM extends View {
 		facePaint.setColor(Color.BLACK);
 
 		scalePaint = new Paint();
-		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		scalePaint.setStyle(Paint.Style.STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(0.5f);
-		scalePaint.setAntiAlias(true);
-		
-		scalePaint.setTextSize(8f);
-		scalePaint.setTypeface(Typeface.SANS_SERIF);
-		scalePaint.setTextAlign(Paint.Align.CENTER);
-		
-		scaleGreenPaint = new Paint();
-		scaleGreenPaint.setStyle(Paint.Style.STROKE);
-		scaleGreenPaint.setColor(Color.GREEN);
-		scaleGreenPaint.setStrokeWidth(3f);
-		scaleGreenPaint.setAntiAlias(true);
-		
-		scaleRedPaint = new Paint();
-		scaleRedPaint.setStyle(Paint.Style.STROKE);
-		scaleRedPaint.setColor(Color.RED);
-		scaleRedPaint.setStrokeWidth(2f);
-		scaleRedPaint.setAntiAlias(true);
+		scalePaint.setStrokeWidth(2f);
+		scalePaint.setAntiAlias(true);	
 		
 		float scalePosition = 3f;
 		scaleRect = new RectF();
 		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
 					  faceRect.right - scalePosition, faceRect.bottom - scalePosition);
 
-		titlePaint = new Paint();
-		titlePaint.setColor(Color.WHITE);
-		titlePaint.setAntiAlias(true);
-		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
-		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(8f);
-
-		handPaint = new Paint();
-		handPaint.setAntiAlias(true);
-		handPaint.setColor(Color.WHITE);
-		handPaint.setStrokeWidth(2f);
-		handPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
+		needlePaint = new Paint();
+		needlePaint.setAntiAlias(true);
+		needlePaint.setColor(Color.WHITE);
+		needlePaint.setStrokeWidth(2f);
+		needlePaint.setStyle(Paint.Style.FILL_AND_STROKE);	
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -202,60 +174,44 @@ public final class RPM extends View {
 
 	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		
-		// draw green range 16 - 24
-		canvas.drawArc(scaleRect, valueToAngle(63f) - 90f, valueToAngle(68f) - valueToAngle(63f), false, scaleGreenPaint);
-		
-		canvas.rotate(-165f, 50f, 50f);
-
-		for (int i = 0; i <= totalNicks; ++i) {
+		canvas.rotate(-90, 50f, 50f);
+		for (int i = 0; i < 7; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
 			
-			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
+			if (i % 3 == 0) // big tick
+				canvas.drawLine(50f, y1, 50f, y2 + 5f, scalePaint);
+			else  //small tick
+				canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			if (i % 5 == 0) { // every 5
-				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
-				
-				int value = nickToValue(i);
-				String valueString = Integer.toString(value);
-				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-degreesPerNick * i + 165f, 50f, y2 + 8f);
-				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
-			}
-			
-			if (i == 35)
-				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
-			
-			canvas.rotate(degreesPerNick, 50f, 50f);
+			canvas.rotate(30, 50f, 50f);
 		}
-		canvas.restore();		
+		canvas.restore();	
+		
+		// draw plane symbol
+		canvas.drawLine(25f, 50f, 40f, 50f, scalePaint);
+		canvas.drawLine(49f, 50f, 51f, 50f, scalePaint);
+		canvas.drawLine(60f, 50f, 75f, 50f, scalePaint);
+		canvas.drawLine(45f, 60f, 55f, 60f, scalePaint);
 	}
-	
-	private int nickToValue(int nick) {
-		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		return rawValue;
-	}
-	
-	private float valueToAngle(float value) {
-		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - minValue) / valuePerNick - 165f;
-	}
-	
-	private void drawTitle(Canvas canvas) {
-		String title = getTitle();
-		canvas.drawText(title, 50f, 40f, titlePaint);
-	}
-	
-
-	private void drawHand(Canvas canvas) {
-		float handAngle = valueToAngle(handPosition);
+		
+	private void drawNeedle(Canvas canvas) {
+		float bankAngle = (float) Math.toDegrees(bank);
+		float pitchShift = -pitch * 100f / 2f;
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(handAngle, 50f, 50f);
-		canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
+		
+		// set clip
+		Path path = new Path();
+		path.addCircle(50f, 50f, 35f, Path.Direction.CW);
+		canvas.clipPath(path);
+		
+		canvas.rotate(bankAngle, 50f, 50f);
+		// draw bank needle
+		canvas.drawLine(50f, 15f, 50f, 25f, needlePaint);
+		
+		// draw horizon
+		canvas.translate(0.0f, pitchShift);
+		canvas.drawLine(10f, 50f, 90f, 50f, needlePaint);
 		canvas.restore();
 	}
 
@@ -275,7 +231,7 @@ public final class RPM extends View {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.scale(scale / 100f, scale / 100f);
 
-		drawHand(canvas);
+		drawNeedle(canvas);
 		
 		canvas.restore();
 	}
@@ -296,22 +252,27 @@ public final class RPM extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale / 100f, scale / 100f);
+		backgroundCanvas.scale(scale / 100f, scale / 100f);  // 0 - 100 coordinates
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
-		drawScale(backgroundCanvas);
-		drawTitle(backgroundCanvas);		
+		drawScale(backgroundCanvas);		
 	}
-
 		
-	public void setRPM(float value) {
-		if (value < minValue) {
-			value = minValue;
-		} else if (value > maxValue) {
-			value = maxValue;
+	public void setPitchAndBank(float pitch, float bank) {
+		if (pitch < minPitchValue) {
+			pitch = minPitchValue;
+		} else if (pitch > maxPitchValue) {
+			pitch = maxPitchValue;
 		}
-		handPosition = value;
+		this.pitch = pitch;
+		
+		if (bank < minBankValue) {
+			bank = minBankValue;
+		} else if (bank > maxBankValue) {
+			bank = maxBankValue;
+		}
+		this.bank = bank;
 		invalidate();
 	}
 }

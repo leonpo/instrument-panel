@@ -1,4 +1,4 @@
-package com.portman.panel;
+package com.portman.panel.uh1h;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class Airspeed extends View {
+public final class RadioCompass extends View {
 
-	private static final String TAG = Airspeed.class.getSimpleName();
+	private static final String TAG = RadioCompass.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -27,10 +27,7 @@ public final class Airspeed extends View {
 	private Paint facePaint;
 	
 	private Paint scalePaint;
-	private Paint scaleRedPaint;
 	private RectF scaleRect;
-	
-	private Paint titlePaint;	
 	
 	private Paint handPaint;
 	
@@ -40,35 +37,27 @@ public final class Airspeed extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks1 = 2;
-	private static final float degreesPerNick1 = 30f / totalNicks1;
-	private static final float minValue1 = 0f;
-	private static final float maxValue1 = 20f;	
-	
-	private static final int totalNicks2 = 4;
-	private static final float degreesPerNick2 = 75f / totalNicks2;
-	private static final float minValue2 = 20f;
-	private static final float maxValue2 = 40f;
-		
-	private static final int totalNicks3 = 22;
-	private static final float degreesPerNick3 = 235f / totalNicks3;
-	private static final float minValue3 = 40f;
-	private static final float maxValue3 = 150;
+	private static final int totalNicks = 72;
+	private static final float degreesPerNick = 360.0f / totalNicks;	
+	private static final float minValue = 0f;
+	private static final float maxValue = 360f;
 	
 	// hand dynamics
-	private float handPosition = 0f;
+	private float compassHeading = 0f;
+	private float coursePointer1 = 0f;
+	private float coursePointer2 = 0f;
 		
-	public Airspeed(Context context) {
+	public RadioCompass(Context context) {
 		super(context);
 		init();
 	}
 
-	public Airspeed(Context context, AttributeSet attrs) {
+	public RadioCompass(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public Airspeed(Context context, AttributeSet attrs, int defStyle) {
+	public RadioCompass(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -79,7 +68,9 @@ public final class Airspeed extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		handPosition = bundle.getFloat("handPosition");
+		compassHeading = bundle.getFloat("compassHeading");
+		coursePointer1 = bundle.getFloat("coursePointer1");
+		coursePointer2 = bundle.getFloat("coursePointer2");
 	}
 
 	@Override
@@ -88,16 +79,14 @@ public final class Airspeed extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putFloat("handPosition", handPosition);
+		state.putFloat("compassHeading", compassHeading);
+		state.putFloat("coursePointer1", coursePointer1);
+		state.putFloat("coursePointer2", coursePointer2);
 		return state;
 	}
 
 	private void init() {
 		initDrawingTools();
-	}
-
-	private String getTitle() {
-		return "KNOTS";
 	}
 
 	private void initDrawingTools() {
@@ -132,23 +121,10 @@ public final class Airspeed extends View {
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
 		
-		scaleRedPaint = new Paint();
-		scaleRedPaint.setStyle(Paint.Style.STROKE);
-		scaleRedPaint.setColor(Color.RED);
-		scaleRedPaint.setStrokeWidth(2f);
-		scaleRedPaint.setAntiAlias(true);
-		
 		float scalePosition = 3f;
 		scaleRect = new RectF();
 		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
 					  faceRect.right - scalePosition, faceRect.bottom - scalePosition);
-
-		titlePaint = new Paint();
-		titlePaint.setColor(Color.WHITE);
-		titlePaint.setAntiAlias(true);
-		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
-		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(8f);
 
 		handPaint = new Paint();
 		handPaint.setAntiAlias(true);
@@ -205,123 +181,76 @@ public final class Airspeed extends View {
 
 	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		for (int i = 0; i < totalNicks1; ++i) {
-			float y1 = scaleRect.top;
-			float y2 = y1 + 3f;
-			
-			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
-			
-			if (i % 2 == 0) { // every 1
-				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
-				
-				float value = nickToValue1(i);
-				String valueString = Integer.toString((int)value);
-				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-degreesPerNick1 * i, 50f, y2 + 10f);
-				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
-			}
-			canvas.rotate(degreesPerNick1, 50f, 50f);
-		}
 		
-		for (int i = 0; i < totalNicks2; ++i) {
-			float y1 = scaleRect.top;
-			float y2 = y1 + 3f;
-			
-			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
-			
-			if (i % 2 == 0) { // every 5
-				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
-				
-				if (i % 4 == 0) {
-					float value = nickToValue2(i);
-					String valueString = Integer.toString((int)value);
-					
-					// draw vertical text
-					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick2 * i - 30f , 50f, y2 + 10f);
-					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-					canvas.restore();
-				}
-			}			
-			canvas.rotate(degreesPerNick2, 50f, 50f);
-		}
+		canvas.rotate(-compassHeading, 50f, 50f);
 		
-		for (int i = 0; i <= totalNicks3; ++i) {
+		for (int i = 0; i < totalNicks; ++i) {
 			float y1 = scaleRect.top;
-			float y2 = y1 + 3f;
+			float y2 = y1 + 6f;
 			
-			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
+			canvas.drawLine(50f, y1 + 4f, 50f, y2, scalePaint);
 			
 			if (i % 2 == 0) { // every 2
-				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
+				canvas.drawLine(50f, y1 + 2f, 50f, y2, scalePaint);
 				
-				if (i % 4 == 0) {
-					float value = nickToValue3(i);
-					String valueString = Integer.toString((int)value);
+				if (i % 6 == 0) { // every 6
+					canvas.drawLine(50f, y1, 50f, y2, scalePaint);
+					float value = nickToValue(i);
+					String valueString = Integer.toString((int) value/10);
+					if ("0".equals(valueString))
+						valueString = "N";
+					if ("9".equals(valueString))
+						valueString = "E";
+					if ("18".equals(valueString))
+						valueString = "S";
+					if ("27".equals(valueString))
+						valueString = "W";
 				
 					// draw vertical text
 					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick3 * i - 105f, 50f, y2 + 10f);
+					//canvas.rotate(degreesPerNick * i, 50f, y2 + 8f);
 					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
 					canvas.restore();
 				}
 			}
 			
-			// draw red line at 124 knots
-			if (i == 17) {
-				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
-			}
-			
-			canvas.rotate(degreesPerNick3, 50f, 50f);
+			canvas.rotate(degreesPerNick, 50f, 50f);
 		}
-		canvas.restore();		
+		canvas.restore();
+		
+		// draw heading triangle
+		canvas.drawLine(50f, 10f, 47f, 5f, scalePaint);
+		canvas.drawLine(50f, 10f, 53f, 5f, scalePaint);
+		canvas.drawLine(47f, 5f, 53f, 5f, scalePaint);
 	}
 	
-	private float nickToValue1(int nick) {
-		float rawValue = minValue1 + nick * (maxValue1 - minValue1) / totalNicks1;
-		return rawValue;
-	}
-	
-	private float nickToValue2(int nick) {
-		float rawValue = minValue2 + nick * (maxValue2 - minValue2) / totalNicks2;
-		return rawValue;
-	}
-	
-	private float nickToValue3(int nick) {
-		float rawValue = minValue3 + nick * (maxValue3 - minValue3) / totalNicks3;
-		return rawValue;
+	private float nickToValue(int nick) {
+		return  minValue + nick * (maxValue - minValue) / totalNicks;
 	}
 	
 	private float valueToAngle(float value) {
-		float angle = 0f;
-		if (value < maxValue1) {
-			float valuePerNick = (float)(maxValue1 - minValue1) / totalNicks1;
-			angle =  degreesPerNick1 * (value - minValue1) / valuePerNick;
-		} else if (value < maxValue2) {
-			float valuePerNick = (float)(maxValue2 - minValue2) / totalNicks2;
-			angle =  degreesPerNick2 * (value - minValue2) / valuePerNick + 30f;
-		} else {
-			float valuePerNick = (float)(maxValue3 - minValue3) / totalNicks3;
-			angle =  degreesPerNick3 * (value - minValue3) / valuePerNick + 105f;
-		}
-		
-		return angle;
+		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
+		return degreesPerNick * (value - minValue) / valuePerNick;
 	}
-	
-	private void drawTitle(Canvas canvas) {
-		String title = getTitle();
-		canvas.drawText(title, 50f, 60f, titlePaint);
-	}
-	
 
-	private void drawHand(Canvas canvas) {
-		float handAngle = valueToAngle(handPosition);
+	private void drawPointers(Canvas canvas) {
+		float handAngle = valueToAngle(coursePointer1);
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(handAngle, 50f, 50f);
-		canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
+		canvas.rotate(-compassHeading + handAngle, 50f, 50f);
+		canvas.drawLine(47f, 30f, 47f, 70f, handPaint);
+		canvas.drawLine(53f, 30f, 53f, 70f, handPaint);
+		canvas.drawLine(45f, 30f, 55f, 30f, handPaint);
+		canvas.drawLine(45f, 30f, 50f, 25f, handPaint);
+		canvas.drawLine(55f, 30f, 50f, 25f, handPaint);
+		canvas.drawLine(50f, 10f, 50f, 25f, handPaint);
+		canvas.restore();
+		
+		handAngle = valueToAngle(coursePointer2);
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(-compassHeading + handAngle, 50f, 50f);
+		canvas.drawLine(50f, 10f, 50f, 90f, handPaint);
+		canvas.drawLine(50f, 10f, 48f, 20f, handPaint);
+		canvas.drawLine(50f, 10f, 52f, 20f, handPaint);
 		canvas.restore();
 	}
 
@@ -339,9 +268,10 @@ public final class Airspeed extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale/100f, scale/100f);
+		canvas.scale(scale / 100f, scale / 100f);
 
-		drawHand(canvas);
+		drawScale(canvas);
+		drawPointers(canvas);
 		
 		canvas.restore();
 	}
@@ -366,17 +296,12 @@ public final class Airspeed extends View {
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
-		drawScale(backgroundCanvas);
-		drawTitle(backgroundCanvas);		
 	}
 		
-	public void setAirspeed(float value) {
-		if (value < minValue1) {
-			value = minValue1;
-		} else if (value > maxValue3) {
-			value = maxValue3;
-		}
-		handPosition = value;
+	public void setHeading(float compassHeading, float coursePointer1, float coursePointer2) {
+		this.compassHeading = compassHeading * 360f/(float) Math.PI;
+		this.coursePointer1 = coursePointer1 * 360f/(float) Math.PI;
+		this.coursePointer2 = coursePointer2 * 360f/(float) Math.PI;
 		invalidate();
 	}
 }

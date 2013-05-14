@@ -1,4 +1,4 @@
-package com.portman.panel;
+package com.portman.panel.uh1h;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -13,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class TurnIndicator extends View {
+public final class DirectionalGyro extends View {
 
-	private static final String TAG = TurnIndicator.class.getSimpleName();
+	private static final String TAG = DirectionalGyro.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -26,36 +27,31 @@ public final class TurnIndicator extends View {
 	private Paint facePaint;
 	
 	private Paint scalePaint;
-		
-	private Paint turnNeedlePaint;
-	private Paint slipballPaint;
+	private Paint scaleLargePaint;
 	
 	private Paint backgroundPaint; 
 	// end drawing tools
 	
-	private Bitmap background; // holds the cached static part
+	private Bitmap background; 			// holds the cached static part
 	
-	// scale configuration
-	private static final float minTurnNeedleValue = -0.0523f;	
-	private static final float maxTurnNeedleValue = 0.0523f;
-	private static final float minSlipballValue = -1.0f;	
-	private static final float maxSlipballValue = 1.0f;	
+	// scale configuration	
+	private static final float minGyroHeading = 0.0f;
+	private static final float maxGyroHeading = 2.0f * (float) Math.PI;
 	
-	//hands
-	private float turnNeedlePosition = 0;
-	private float slipballPosition = 0;
+	// hand dynamics
+	private float gyroHeading = (float) Math.PI * 0f;
 	
-	public TurnIndicator(Context context) {
+	public DirectionalGyro(Context context) {
 		super(context);
 		init();
 	}
 
-	public TurnIndicator(Context context, AttributeSet attrs) {
+	public DirectionalGyro(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public TurnIndicator(Context context, AttributeSet attrs, int defStyle) {
+	public DirectionalGyro(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -66,8 +62,7 @@ public final class TurnIndicator extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		turnNeedlePosition = bundle.getFloat("turnNeedlePosition");
-		slipballPosition = bundle.getFloat("slipballPosition");
+		gyroHeading = bundle.getFloat("gyroHeading");
 	}
 
 	@Override
@@ -76,8 +71,7 @@ public final class TurnIndicator extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putFloat("turnNeedlePosition", turnNeedlePosition);
-		state.putFloat("slipballPosition", slipballPosition);
+		state.putFloat("gyroHeading", gyroHeading);		
 		return state;
 	}
 
@@ -86,19 +80,19 @@ public final class TurnIndicator extends View {
 	}
 
 	private void initDrawingTools() {
-		rimRect = new RectF(1f, 1f, 99f, 99f);
+		rimRect = new RectF(100f, 100f, 900f, 900f);
 
 		rimPaint = new Paint();
-		rimPaint.setColor(Color.LTGRAY);
 		rimPaint.setAntiAlias(true);
+		rimPaint.setColor(Color.LTGRAY);
 
 		rimCirclePaint = new Paint();
+		rimCirclePaint.setAntiAlias(true);
 		rimCirclePaint.setStyle(Paint.Style.STROKE);
 		rimCirclePaint.setColor(Color.GRAY);
-		rimCirclePaint.setStrokeWidth(1f);
-		rimCirclePaint.setAntiAlias(true);
+		rimCirclePaint.setStrokeWidth(10f);
 
-		float rimSize = 2f;
+		float rimSize = 20f;
 		faceRect = new RectF();
 		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize, 
 			     rimRect.right - rimSize, rimRect.bottom - rimSize);
@@ -106,24 +100,26 @@ public final class TurnIndicator extends View {
 		facePaint = new Paint();
 		facePaint.setStyle(Paint.Style.FILL);
 		facePaint.setColor(Color.BLACK);
-		
+
 		scalePaint = new Paint();
 		scalePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(1f);
+		scalePaint.setStrokeWidth(3f);
 		scalePaint.setAntiAlias(true);	
 		
-		turnNeedlePaint = new Paint();
-		turnNeedlePaint.setColor(Color.WHITE);
-		turnNeedlePaint.setStrokeWidth(5f);
-		turnNeedlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-		turnNeedlePaint.setAntiAlias(true);
+		scalePaint.setTextSize(50f);
+		scalePaint.setTypeface(Typeface.SANS_SERIF);
+		scalePaint.setTextAlign(Paint.Align.CENTER);
 		
-		slipballPaint = new Paint();
-		slipballPaint.setColor(Color.BLACK);
-		slipballPaint.setStrokeWidth(2f);
-		slipballPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-		slipballPaint.setAntiAlias(true);
+		scaleLargePaint = new Paint();
+		scaleLargePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		scaleLargePaint.setColor(Color.WHITE);
+		scaleLargePaint.setStrokeWidth(5f);
+		scaleLargePaint.setAntiAlias(true);	
+		
+		scaleLargePaint.setTextSize(80f);
+		scaleLargePaint.setTypeface(Typeface.SANS_SERIF);
+		scaleLargePaint.setTextAlign(Paint.Align.CENTER);
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -171,38 +167,48 @@ public final class TurnIndicator extends View {
 		// draw the inner rim circle
 		canvas.drawOval(faceRect, rimCirclePaint);
 	}
-	
-	private void drawScale(Canvas canvas) {		
-		// draw turn triangle
-		canvas.drawLine(50f, 20f, 45f, 10f, scalePaint);
-		canvas.drawLine(50f, 20f, 55f, 10f, scalePaint);
-		canvas.drawLine(45f, 10f, 55f, 10f, scalePaint);
-		
-		// draw ball path
-		canvas.drawRect(20f, 62f, 80f, 78f, scalePaint);
-		
-		// draw gate
-		canvas.drawLine(40f, 60f, 40f, 80f, slipballPaint);
-		canvas.drawLine(60f, 60f, 60f, 80f, slipballPaint);
-	}
-	
-	private void drawTurnNeedle(Canvas canvas) {
-		float turnNeedleAngle = (float) Math.toDegrees(turnNeedlePosition)*5;
+
+	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(turnNeedleAngle, 50f, 90f);
-		canvas.drawLine(50f, 50f, 50f, 20f, turnNeedlePaint);
-		canvas.restore();
+		canvas.restore();	
 	}
-	
-	private void drawSlipball(Canvas canvas) {
-		float slipballTranslate = slipballPosition * 30f;
+		
+	private void drawNeedle(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		
-		// draw slipball
-		canvas.translate(slipballTranslate, 0.0f);
-		canvas.drawCircle(50f, 70f, 8f, slipballPaint);
+		canvas.clipRect(250f, 200f, 750f, 550f);
+		
+		int shift =  (int) Math.toDegrees(gyroHeading) * 50 / 5 - 3400;
+		canvas.translate(shift, 0.0f);
+		
+		for (int i = 78; i > -12; --i) {
+			String value;
+			if (i < 0)
+				value = Integer.toString(36 + i/2);
+			else if (i > 72)
+				value = Integer.toString(i/2 - 36);
+			else
+				value = Integer.toString(i/2);
+			if (value.contentEquals("36"))
+				value = "0";
+			
+			if (i % 6 == 0) { // large tick every 30 degrees
+				canvas.drawLine(0f, 380f, 0f, 500f, scalePaint);
+				canvas.drawText(value, 0f, 370f, scaleLargePaint);
+			} else if (i % 2 == 0) { // large tick every 10 degrees
+				canvas.drawLine(0f, 380f, 0f, 500f, scalePaint);
+				canvas.drawText(value, 0f, 370f, scalePaint);
+			}
+			else { //small tick
+				canvas.drawLine(0f, 430f, 0f, 500f, scalePaint);
+			}
+			
+			canvas.translate(50f, 0.0f);
+		}
 		
 		canvas.restore();
+		
+		canvas.drawLine(500f, 300, 500f, 500f, scalePaint);
 	}
 
 	private void drawBackground(Canvas canvas) {
@@ -219,10 +225,9 @@ public final class TurnIndicator extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale / 100f, scale / 100f);
+		canvas.scale(scale/1000f, scale/1000f);
 
-		drawSlipball(canvas);
-		drawTurnNeedle(canvas);
+		drawNeedle(canvas);
 		
 		canvas.restore();
 	}
@@ -243,30 +248,21 @@ public final class TurnIndicator extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale / 100f, scale / 100f);
+		backgroundCanvas.scale(scale/1000f, scale/1000f);
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
 		drawScale(backgroundCanvas);
 	}
 		
-	public void setTurnNeedlePosition(float value) {
-		if (value < minTurnNeedleValue) {
-			value = minTurnNeedleValue;
-		} else if (value > maxTurnNeedleValue) {
-			value = maxTurnNeedleValue;
+	public void setGyroHeading(float value) {
+		if (gyroHeading < minGyroHeading) {
+			value = minGyroHeading;
+		} else if (value > maxGyroHeading) {
+			value = maxGyroHeading;
 		}
-		turnNeedlePosition = value;
-		invalidate();
-	}
-	
-	public void setSlipballPosition(float value) {
-		if (value < minSlipballValue) {
-			value = minSlipballValue;
-		} else if (value > maxSlipballValue) {
-			value = maxSlipballValue;
-		}
-		slipballPosition = value;
+		this.gyroHeading = value;
+		
 		invalidate();
 	}
 }

@@ -1,4 +1,4 @@
-package com.portman.panel;
+package com.portman.panel.uh1h;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class RadioCompass extends View {
+public final class Altimeter extends View {
 
-	private static final String TAG = RadioCompass.class.getSimpleName();
+	private static final String TAG = Altimeter.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -27,13 +27,13 @@ public final class RadioCompass extends View {
 	private Paint facePaint;
 	
 	private Paint scalePaint;
-	private Paint scaleGreenPaint;
-	private Paint scaleRedPaint;
 	private RectF scaleRect;
 	
 	private Paint titlePaint;	
 	
-	private Paint handPaint;
+	private Paint hand10000Paint;
+	private Paint hand1000Paint;
+	private Paint hand100Paint;
 	
 	private Paint backgroundPaint; 
 	// end drawing tools
@@ -41,25 +41,27 @@ public final class RadioCompass extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 65;
-	private static final float degreesPerNick = 350.0f / totalNicks;	
-	private static final int minValue = 10;
-	private static final int maxValue = 75;
+	private static final int totalNicks = 50;
+	private static final float degreesPerNick = 360.0f / totalNicks;	
+	private static final int minValue = 0;
+	private static final int maxValue = 10;
 	
 	// hand dynamics
-	private float handPosition = 10f;
-		
-	public RadioCompass(Context context) {
+	private float hand10000Position = 0f;
+	private float hand1000Position = 0f;
+	private float hand100Position = 0f;
+	
+	public Altimeter(Context context) {
 		super(context);
 		init();
 	}
 
-	public RadioCompass(Context context, AttributeSet attrs) {
+	public Altimeter(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public RadioCompass(Context context, AttributeSet attrs, int defStyle) {
+	public Altimeter(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -70,7 +72,9 @@ public final class RadioCompass extends View {
 		Parcelable superState = bundle.getParcelable("superState");
 		super.onRestoreInstanceState(superState);
 		
-		handPosition = bundle.getFloat("handPosition");
+		hand10000Position = bundle.getFloat("hand10000Position");
+		hand1000Position = bundle.getFloat("hand1000Position");
+		hand100Position = bundle.getFloat("hand100Position");
 	}
 
 	@Override
@@ -79,7 +83,9 @@ public final class RadioCompass extends View {
 		
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
-		state.putFloat("handPosition", handPosition);
+		state.putFloat("hand10000Position", hand10000Position);
+		state.putFloat("hand1000Position", hand1000Position);
+		state.putFloat("hand100Position", hand100Position);
 		return state;
 	}
 
@@ -88,7 +94,7 @@ public final class RadioCompass extends View {
 	}
 
 	private String getTitle() {
-		return "MANIFOLD";
+		return "ALT";
 	}
 
 	private void initDrawingTools() {
@@ -121,19 +127,7 @@ public final class RadioCompass extends View {
 		
 		scalePaint.setTextSize(8f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
-		scalePaint.setTextAlign(Paint.Align.CENTER);
-		
-		scaleGreenPaint = new Paint();
-		scaleGreenPaint.setStyle(Paint.Style.STROKE);
-		scaleGreenPaint.setColor(Color.GREEN);
-		scaleGreenPaint.setStrokeWidth(3f);
-		scaleGreenPaint.setAntiAlias(true);
-		
-		scaleRedPaint = new Paint();
-		scaleRedPaint.setStyle(Paint.Style.STROKE);
-		scaleRedPaint.setColor(Color.RED);
-		scaleRedPaint.setStrokeWidth(2f);
-		scaleRedPaint.setAntiAlias(true);
+		scalePaint.setTextAlign(Paint.Align.CENTER);		
 		
 		float scalePosition = 3f;
 		scaleRect = new RectF();
@@ -147,11 +141,23 @@ public final class RadioCompass extends View {
 		titlePaint.setTextAlign(Paint.Align.CENTER);
 		titlePaint.setTextSize(8f);
 
-		handPaint = new Paint();
-		handPaint.setAntiAlias(true);
-		handPaint.setColor(Color.WHITE);
-		handPaint.setStrokeWidth(2f);
-		handPaint.setStyle(Paint.Style.FILL_AND_STROKE);	
+		hand10000Paint = new Paint();
+		hand10000Paint.setAntiAlias(true);
+		hand10000Paint.setColor(Color.WHITE);
+		hand10000Paint.setStrokeWidth(1f);
+		hand10000Paint.setStyle(Paint.Style.FILL_AND_STROKE);	
+		
+		hand1000Paint = new Paint();
+		hand1000Paint.setAntiAlias(true);
+		hand1000Paint.setColor(Color.WHITE);
+		hand1000Paint.setStrokeWidth(3f);
+		hand1000Paint.setStyle(Paint.Style.FILL_AND_STROKE);
+		
+		hand100Paint = new Paint();
+		hand100Paint.setAntiAlias(true);
+		hand100Paint.setColor(Color.WHITE);
+		hand100Paint.setStrokeWidth(2f);
+		hand100Paint.setStyle(Paint.Style.FILL_AND_STROKE);
 		
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -201,13 +207,9 @@ public final class RadioCompass extends View {
 	}
 
 	private void drawScale(Canvas canvas) {
+		//canvas.drawOval(scaleRect, scalePaint);
+
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		
-		// draw green range 26-36
-		canvas.drawArc(scaleRect, valueToAngle(26f) - 90f, valueToAngle(36f) - valueToAngle(26f), false, scaleGreenPaint);
-		
-		canvas.rotate(-105, 50f, 50f);
-		
 		for (int i = 0; i < totalNicks; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
@@ -217,19 +219,15 @@ public final class RadioCompass extends View {
 			if (i % 5 == 0) { // every 5
 				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
-				int value = nickToValue(i);
+				int value = nickToValue(i);				
 				String valueString = Integer.toString(value);
 				
 				// draw vertical text
 				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(105 - degreesPerNick * i, 50f, y2 + 8f);
+				canvas.rotate(-degreesPerNick * i, 50f, y2 + 8f);
 				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
 				canvas.restore();
 			}
-			
-			// draw red line at 61 inHg
-			if (i == 51)
-				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
 			
 			canvas.rotate(degreesPerNick, 50f, 50f);
 		}
@@ -242,21 +240,35 @@ public final class RadioCompass extends View {
 	}
 	
 	private float valueToAngle(float value) {
-		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - minValue) / valuePerNick - 105;
+		float valuePerNick = (float) (maxValue - minValue) / totalNicks;
+		return degreesPerNick * (value - minValue) / valuePerNick;
 	}
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 50f, 40f, titlePaint);
+		canvas.drawText(title, 40f, 40f, titlePaint);
 	}
 	
 
 	private void drawHand(Canvas canvas) {
-		float handAngle = valueToAngle(handPosition);
+		float hand10000Angle = valueToAngle(hand10000Position);
+		float hand1000Angle = valueToAngle(hand1000Position);
+		float hand100Angle = valueToAngle(hand100Position);
+		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(handAngle, 50f, 50f);
-		canvas.drawLine(50f, 50f, 50f, 10f, handPaint);
+		canvas.rotate(hand10000Angle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 35f, hand10000Paint);
+		canvas.restore();
+		
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(hand1000Angle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 25f, hand1000Paint);
+		canvas.restore();
+		
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(hand100Angle, 50f, 50f);
+		canvas.drawLine(50f, 50f, 50f, 15f, hand100Paint);
+		
 		canvas.restore();
 	}
 
@@ -274,7 +286,7 @@ public final class RadioCompass extends View {
 
 		float scale = (float) getWidth();		
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale / 100f, scale / 100f);
+		canvas.scale(scale/100f, scale/100f);
 
 		drawHand(canvas);
 		
@@ -297,7 +309,7 @@ public final class RadioCompass extends View {
 		background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas backgroundCanvas = new Canvas(background);
 		float scale = (float) getWidth();		
-		backgroundCanvas.scale(scale / 100f, scale / 100f);
+		backgroundCanvas.scale(scale/100f, scale/100f);
 		
 		drawRim(backgroundCanvas);
 		drawFace(backgroundCanvas);
@@ -305,13 +317,28 @@ public final class RadioCompass extends View {
 		drawTitle(backgroundCanvas);		
 	}
 		
-	public void setManifold(float value) {
-		if (value < minValue) {
-			value = minValue;
-		} else if (value > maxValue) {
-			value = maxValue;
+	public void setAltimeter(float value10000, float value1000, float value100) {
+		if (value10000 < minValue) {
+			value10000 = minValue;
+		} else if (value10000 > maxValue) {
+			value10000 = maxValue;
 		}
-		handPosition = value;
+		hand10000Position = value10000;
+		
+		if (value1000 < minValue) {
+			value1000 = minValue;
+		} else if (value1000 > maxValue) {
+			value1000 = maxValue;
+		}
+		hand1000Position = value1000;
+
+		if (value100 < minValue) {
+			value100 = minValue;
+		} else if (value100 > maxValue) {
+			value100 = maxValue;
+		}
+		hand100Position = value100;
+
 		invalidate();
 	}
 }

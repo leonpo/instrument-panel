@@ -1,4 +1,4 @@
-package com.portman.panel;
+package com.portman.panel.uh1h;
  
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import com.portman.panel.uh1h.R;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -26,12 +28,13 @@ public class PanelActivity extends Activity implements OnClickListener {
 	private static Airspeed mAirspeed;
 	private static Altimeter mAltimeter;
 	private static Torque mTorque;
-	private static RPM 	   mRPM;
+	private static RPM mRPM;
 	private static TurnIndicator mTurnIndicator;
 	private static ArtificialHorizon mArtificialHorizon;
 	private static DirectionalGyro mDirectionalGyro;
 	private static Variometer  mVariometer;
 	private static FuelGauge mFuelGauge; 
+	private static RadioCompass mRadioCompass;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,9 +50,11 @@ public class PanelActivity extends Activity implements OnClickListener {
 		mRPM		 = (RPM) findViewById(R.id.rpm);
 		mTurnIndicator = (TurnIndicator) findViewById(R.id.turn_indicator);
 		mArtificialHorizon = (ArtificialHorizon) findViewById(R.id.artificial_horizon);
-		mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
+		mRadioCompass = (RadioCompass) findViewById(R.id.radio_compass);
+		//mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
 		mVariometer = (Variometer) findViewById(R.id.variometer);
-	   	mFuelGauge = (FuelGauge) findViewById(R.id.fuel_gauge);  
+	   	mFuelGauge = (FuelGauge) findViewById(R.id.fuel_gauge); 
+	   	
 	   
 	   	// set click handlers
 	   	mRPM.setOnClickListener(this);
@@ -91,7 +96,7 @@ public class PanelActivity extends Activity implements OnClickListener {
 			switch (msg.what) {
 			case MSG_ID:			   
 				try {
-					Log.i("PanelActivity", "handleMessage: " + mClientMsg);
+					//Log.i("PanelActivity", "handleMessage: " + mClientMsg);
 					// parse json
 					JSONObject object = (JSONObject) new JSONTokener(mClientMsg).nextValue();
 				   
@@ -104,10 +109,13 @@ public class PanelActivity extends Activity implements OnClickListener {
 					mTurnIndicator.setTurnNeedlePosition((float)object.getDouble("TurnNeedle"));
 					mTurnIndicator.setSlipballPosition((float)object.getDouble("Slipball"));
 					mArtificialHorizon.setPitchAndBank((float)object.getDouble("AHorizon_Pitch"), (float)object.getDouble("AHorizon_Bank"));
-				   	mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
+				   	mRadioCompass.setHeading((float)object.getDouble("CoursePointer1"),
+				   			(float)object.getDouble("CoursePointer2"),
+				   			(float)object.getDouble("CompassHeading"));
 				   	mVariometer.setVariometer((float)object.getDouble("Variometer")/1000f);
 				   	//mEngineGauge.setValues((float)object.getDouble("Oil_Temperature"), (float)object.getDouble("Oil_Pressure"), (float)object.getDouble("Fuel_Pressure"));
-				   	mFuelGauge.setFuel((float)object.getDouble("Fuel_Tank"));				   
+				   	mFuelGauge.setFuel((float)object.getDouble("Fuel_Tank"));
+				   	//mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
