@@ -40,14 +40,14 @@ public final class FuelGauge extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 18;
-	private static final float degreesPerNick = 180.0f / totalNicks;	
+	private static final int totalNicks = 80;
+	private static final float degreesPerNick = 330.0f / totalNicks;	
 	private static final int minValue = 0;
-	private static final int maxValue = 90;
+	private static final int maxValue = 15;
 	
 	// hand dynamics
-	private float handPosition = 0;
-	private String title = "Fuel";
+	private float handPosition = 6f;
+	private String title = "FUEL";
 		
 	public FuelGauge(Context context) {
 		super(context);
@@ -201,24 +201,26 @@ public final class FuelGauge extends View {
 	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		
-		canvas.rotate(-90, 50f, 50f);
+		canvas.rotate(-165, 50f, 50f);
 		for (int i = 0; i < totalNicks; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			if (i % 2 == 0) { // every 2
+			if (i % 5 == 0) { // every 5
 				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
-				int value = nickToValue(i);
-				String valueString = Integer.toString(value);
+				if (i % 10 == 0) { // every 10
+					int value = nickToValue(i);
+					String valueString = Integer.toString(value);
 				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-degreesPerNick * i + 90, 50f, y2 + 8f);
-				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
+					// draw vertical text
+					canvas.save(Canvas.MATRIX_SAVE_FLAG);
+					canvas.rotate(-degreesPerNick * i + 165, 50f, y2 + 8f);
+					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+					canvas.restore();
+				}
 			}
 			
 			canvas.rotate(degreesPerNick, 50f, 50f);
@@ -233,12 +235,12 @@ public final class FuelGauge extends View {
 	
 	private float valueToAngle(float value) {
 		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - minValue) / valuePerNick - 90;
+		return degreesPerNick * (value - minValue) / valuePerNick - 165f;
 	}
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 50f, 80f, titlePaint);
+		canvas.drawText(title, 50f, 30f, titlePaint);
 	}
 	
 	private void drawHand(Canvas canvas) {

@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class Manifold extends View {
+public final class Torque extends View {
 
-	private static final String TAG = Manifold.class.getSimpleName();
+	private static final String TAG = Torque.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -41,25 +41,25 @@ public final class Manifold extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 65;
-	private static final float degreesPerNick = 350.0f / totalNicks;	
-	private static final int minValue = 10;
-	private static final int maxValue = 75;
+	private static final int totalNicks = 20;
+	private static final float degreesPerNick = 260.0f / totalNicks;	
+	private static final int minValue = 0;
+	private static final int maxValue = 100;
 	
 	// hand dynamics
-	private float handPosition = 10f;
+	private float handPosition = 0f;
 		
-	public Manifold(Context context) {
+	public Torque(Context context) {
 		super(context);
 		init();
 	}
 
-	public Manifold(Context context, AttributeSet attrs) {
+	public Torque(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public Manifold(Context context, AttributeSet attrs, int defStyle) {
+	public Torque(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -88,7 +88,7 @@ public final class Manifold extends View {
 	}
 
 	private String getTitle() {
-		return "MANIFOLD";
+		return "PSI";
 	}
 
 	private void initDrawingTools() {
@@ -203,32 +203,31 @@ public final class Manifold extends View {
 	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		
-		// draw green range 26-36
-		canvas.drawArc(scaleRect, valueToAngle(26f) - 90f, valueToAngle(36f) - valueToAngle(26f), false, scaleGreenPaint);
+		canvas.rotate(160, 50f, 50f);
 		
-		canvas.rotate(-105, 50f, 50f);
-		
-		for (int i = 0; i < totalNicks; ++i) {
+		for (int i = 0; i <= totalNicks; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			if (i % 5 == 0) { // every 5
-				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
+			if (i % 2 == 0) {
+				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
 				
-				int value = nickToValue(i);
-				String valueString = Integer.toString(value);
+				if (i % 4 == 0) {
+					int value = nickToValue(i);
+					String valueString = Integer.toString(value);
 				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(105 - degreesPerNick * i, 50f, y2 + 8f);
-				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
+					// draw vertical text
+					canvas.save(Canvas.MATRIX_SAVE_FLAG);
+					canvas.rotate(-degreesPerNick * i - 160f, 50f, y2 + 8f);
+					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+					canvas.restore();
+				}
 			}
 			
-			// draw red line at 61 inHg
-			if (i == 51)
+			// draw red line at 50 PSI
+			if (i == 10)
 				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
 			
 			canvas.rotate(degreesPerNick, 50f, 50f);
@@ -243,7 +242,7 @@ public final class Manifold extends View {
 	
 	private float valueToAngle(float value) {
 		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
-		return degreesPerNick * (value - minValue) / valuePerNick - 105;
+		return degreesPerNick * (value - minValue) / valuePerNick + 160;
 	}
 	
 	private void drawTitle(Canvas canvas) {

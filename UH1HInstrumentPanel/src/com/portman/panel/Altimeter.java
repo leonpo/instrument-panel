@@ -94,7 +94,7 @@ public final class Altimeter extends View {
 	}
 
 	private String getTitle() {
-		return "ALTITUDE";
+		return "ALT";
 	}
 
 	private void initDrawingTools() {
@@ -246,7 +246,7 @@ public final class Altimeter extends View {
 	
 	private void drawTitle(Canvas canvas) {
 		String title = getTitle();
-		canvas.drawText(title, 50f, 40f, titlePaint);
+		canvas.drawText(title, 40f, 40f, titlePaint);
 	}
 	
 

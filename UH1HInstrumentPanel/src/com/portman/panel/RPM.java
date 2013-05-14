@@ -41,10 +41,10 @@ public final class RPM extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 45;
+	private static final int totalNicks = 35;
 	private static final float degreesPerNick = 330.0f / totalNicks;	
 	private static final int minValue = 0;
-	private static final int maxValue = 45;
+	private static final int maxValue = 70;
 	
 	// hand dynamics
 	private float handPosition = 0f;
@@ -204,7 +204,7 @@ public final class RPM extends View {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		
 		// draw green range 16 - 24
-		canvas.drawArc(scaleRect, valueToAngle(16f) - 90f, valueToAngle(24f) - valueToAngle(16f), false, scaleGreenPaint);
+		canvas.drawArc(scaleRect, valueToAngle(63f) - 90f, valueToAngle(68f) - valueToAngle(63f), false, scaleGreenPaint);
 		
 		canvas.rotate(-165f, 50f, 50f);
 
@@ -214,8 +214,8 @@ public final class RPM extends View {
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			if (i % 5 == 0) { // every 10
-				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
+			if (i % 5 == 0) { // every 5
+				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
 				
 				int value = nickToValue(i);
 				String valueString = Integer.toString(value);
@@ -227,8 +227,7 @@ public final class RPM extends View {
 				canvas.restore();
 			}
 			
-			// draw red line at 3000 RPM
-			if (i == 30)
+			if (i == 35)
 				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
 			
 			canvas.rotate(degreesPerNick, 50f, 50f);

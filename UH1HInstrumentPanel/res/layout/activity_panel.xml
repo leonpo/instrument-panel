@@ -48,27 +48,16 @@
 	    android:layout_width="fill_parent"
 	    android:layout_weight="25" 
 	    android:gravity="center">
-		<com.portman.panel.Manifold android:id="@+id/manifold" 
+		<com.portman.panel.Torque android:id="@+id/torque" 
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
 		<com.portman.panel.RPM 		android:id="@+id/rpm"	   
 		    android:layout_width="fill_parent" 
-		    android:layout_height="fill_parent" />
-		<com.portman.panel.EngineGauge android:id="@+id/engine_gauge"	   
+		    android:layout_height="fill_parent"
+		    android:visibility="visible" />
+		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge"	   
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" 
 		    android:visibility="gone"/>	
-		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_left"	   
-		    android:layout_width="fill_parent" 
-		    android:layout_height="fill_parent" 
-		    android:visibility="gone"/>	
-		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_right"	   
-		    android:layout_width="fill_parent" 
-		    android:layout_height="fill_parent" 
-		    android:visibility="gone"/>	
-		<com.portman.panel.FuelGauge android:id="@+id/fuel_gauge_fuselage"	   
-		    android:layout_width="fill_parent" 
-		    android:layout_height="fill_parent" 
-		    android:visibility="gone"/>		
 	</LinearLayout>
 </LinearLayout>

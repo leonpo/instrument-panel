@@ -40,20 +40,20 @@ public final class Airspeed extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks1 = 1;
-	private static final float degreesPerNick1 = 10f / totalNicks1;
+	private static final int totalNicks1 = 2;
+	private static final float degreesPerNick1 = 30f / totalNicks1;
 	private static final float minValue1 = 0f;
-	private static final float maxValue1 = 50f;	
+	private static final float maxValue1 = 20f;	
 	
-	private static final int totalNicks2 = 25;
-	private static final float degreesPerNick2 = 220f / totalNicks2;
-	private static final float minValue2 = 50f;
-	private static final float maxValue2 = 300f;
+	private static final int totalNicks2 = 4;
+	private static final float degreesPerNick2 = 75f / totalNicks2;
+	private static final float minValue2 = 20f;
+	private static final float maxValue2 = 40f;
 		
-	private static final int totalNicks3 = 8;
-	private static final float degreesPerNick3 = 115f / totalNicks3;
-	private static final float minValue3 = 300f;
-	private static final float maxValue3 = 700f;
+	private static final int totalNicks3 = 22;
+	private static final float degreesPerNick3 = 235f / totalNicks3;
+	private static final float minValue3 = 40f;
+	private static final float maxValue3 = 150;
 	
 	// hand dynamics
 	private float handPosition = 0f;
@@ -97,7 +97,7 @@ public final class Airspeed extends View {
 	}
 
 	private String getTitle() {
-		return "M.P.H.";
+		return "KNOTS";
 	}
 
 	private void initDrawingTools() {
@@ -211,17 +211,16 @@ public final class Airspeed extends View {
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			if (i % 1 == 0) { // every 1
-				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
+			if (i % 2 == 0) { // every 1
+				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
 				
 				float value = nickToValue1(i);
 				String valueString = Integer.toString((int)value);
 				
 				// draw vertical text
 				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-degreesPerNick1 * i, 50f, y2 + 8f);
-				scalePaint.setTextSize(6f);
-				canvas.drawText(valueString, 50f, y2 + 6f, scalePaint);
+				canvas.rotate(-degreesPerNick1 * i, 50f, y2 + 10f);
+				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
 				canvas.restore();
 			}
 			canvas.rotate(degreesPerNick1, 50f, 50f);
@@ -233,18 +232,19 @@ public final class Airspeed extends View {
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
-			if (i % 5 == 0) { // every 5
-				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
+			if (i % 2 == 0) { // every 5
+				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
 				
-				float value = nickToValue2(i);
-				String valueString = Integer.toString((int)value);
-				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-degreesPerNick2 * i - 10f , 50f, y2 + 8f);
-				scalePaint.setTextSize(8f);
-				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
+				if (i % 4 == 0) {
+					float value = nickToValue2(i);
+					String valueString = Integer.toString((int)value);
+					
+					// draw vertical text
+					canvas.save(Canvas.MATRIX_SAVE_FLAG);
+					canvas.rotate(-degreesPerNick2 * i - 30f , 50f, y2 + 10f);
+					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+					canvas.restore();
+				}
 			}			
 			canvas.rotate(degreesPerNick2, 50f, 50f);
 		}
@@ -256,23 +256,23 @@ public final class Airspeed extends View {
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
 			if (i % 2 == 0) { // every 2
-				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
+				canvas.drawLine(50f, y1, 50f, y2 + 3f, scalePaint);
 				
-				float value = nickToValue3(i);
-				String valueString = Integer.toString((int)value);
+				if (i % 4 == 0) {
+					float value = nickToValue3(i);
+					String valueString = Integer.toString((int)value);
 				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(-degreesPerNick3 * i - 230f, 50f, y2 + 8f);
-				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
+					// draw vertical text
+					canvas.save(Canvas.MATRIX_SAVE_FLAG);
+					canvas.rotate(-degreesPerNick3 * i - 105f, 50f, y2 + 10f);
+					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
+					canvas.restore();
+				}
 			}
 			
-			// draw red line at 505 knots
-			if (i == 4) {
-				canvas.rotate(3f, 50f, 50f);
+			// draw red line at 124 knots
+			if (i == 17) {
 				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
-				canvas.rotate(-3f, 50f, 50f);
 			}
 			
 			canvas.rotate(degreesPerNick3, 50f, 50f);
@@ -302,10 +302,10 @@ public final class Airspeed extends View {
 			angle =  degreesPerNick1 * (value - minValue1) / valuePerNick;
 		} else if (value < maxValue2) {
 			float valuePerNick = (float)(maxValue2 - minValue2) / totalNicks2;
-			angle =  degreesPerNick2 * (value - minValue2) / valuePerNick + 10f;
+			angle =  degreesPerNick2 * (value - minValue2) / valuePerNick + 30f;
 		} else {
 			float valuePerNick = (float)(maxValue3 - minValue3) / totalNicks3;
-			angle =  degreesPerNick3 * (value - minValue3) / valuePerNick + 230f;
+			angle =  degreesPerNick3 * (value - minValue3) / valuePerNick + 105f;
 		}
 		
 		return angle;

@@ -14,9 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-public final class Variometer extends View {
+public final class RadioCompass extends View {
 
-	private static final String TAG = Variometer.class.getSimpleName();
+	private static final String TAG = RadioCompass.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -26,8 +26,10 @@ public final class Variometer extends View {
 	private RectF faceRect;
 	private Paint facePaint;
 	
-	private Paint scalePaint;	
-	private RectF scaleRect, scaleRect2;
+	private Paint scalePaint;
+	private Paint scaleGreenPaint;
+	private Paint scaleRedPaint;
+	private RectF scaleRect;
 	
 	private Paint titlePaint;	
 	
@@ -39,35 +41,25 @@ public final class Variometer extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks1 = 6;
-	private static final float degreesPerNick1 = 125.0f / totalNicks1;	
-	private static final float minValue1 = -4.0f;
-	private static final float maxValue1 = -1.0f;
-	
-	private static final int totalNicks2 = 20;
-	private static final float degreesPerNick2 = 90.0f / totalNicks2;	
-	private static final float minValue2 = -1.0f;
-	private static final float maxValue2 = 1.0f;
-	
-	private static final int totalNicks3 = 6;
-	private static final float degreesPerNick3 = 125.0f / totalNicks3;	
-	private static final float minValue3 = 1.0f;
-	private static final float maxValue3 = 4.0f;
+	private static final int totalNicks = 65;
+	private static final float degreesPerNick = 350.0f / totalNicks;	
+	private static final int minValue = 10;
+	private static final int maxValue = 75;
 	
 	// hand dynamics
-	private float handPosition = 0f;
-	
-	public Variometer(Context context) {
+	private float handPosition = 10f;
+		
+	public RadioCompass(Context context) {
 		super(context);
 		init();
 	}
 
-	public Variometer(Context context, AttributeSet attrs) {
+	public RadioCompass(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public Variometer(Context context, AttributeSet attrs, int defStyle) {
+	public RadioCompass(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -96,7 +88,7 @@ public final class Variometer extends View {
 	}
 
 	private String getTitle() {
-		return "VERTICAL SPEED";
+		return "MANIFOLD";
 	}
 
 	private void initDrawingTools() {
@@ -127,25 +119,33 @@ public final class Variometer extends View {
 		scalePaint.setStrokeWidth(0.5f);
 		scalePaint.setAntiAlias(true);
 		
-		scalePaint.setTextSize(10f);
+		scalePaint.setTextSize(8f);
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
+		
+		scaleGreenPaint = new Paint();
+		scaleGreenPaint.setStyle(Paint.Style.STROKE);
+		scaleGreenPaint.setColor(Color.GREEN);
+		scaleGreenPaint.setStrokeWidth(3f);
+		scaleGreenPaint.setAntiAlias(true);
+		
+		scaleRedPaint = new Paint();
+		scaleRedPaint.setStyle(Paint.Style.STROKE);
+		scaleRedPaint.setColor(Color.RED);
+		scaleRedPaint.setStrokeWidth(2f);
+		scaleRedPaint.setAntiAlias(true);
 		
 		float scalePosition = 3f;
 		scaleRect = new RectF();
 		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
 					  faceRect.right - scalePosition, faceRect.bottom - scalePosition);
-		float scalePosition2 = 6f;
-		scaleRect2 = new RectF();
-		scaleRect2.set(faceRect.left + scalePosition2, faceRect.top + scalePosition2,
-				  faceRect.right - scalePosition2, faceRect.bottom - scalePosition2);
 
 		titlePaint = new Paint();
 		titlePaint.setColor(Color.WHITE);
 		titlePaint.setAntiAlias(true);
 		titlePaint.setTypeface(Typeface.DEFAULT_BOLD);
 		titlePaint.setTextAlign(Paint.Align.CENTER);
-		titlePaint.setTextSize(6f);
+		titlePaint.setTextSize(8f);
 
 		handPaint = new Paint();
 		handPaint.setAntiAlias(true);
@@ -192,8 +192,6 @@ public final class Variometer extends View {
 	private void drawRim(Canvas canvas) {
 		// first, draw the metallic body
 		canvas.drawOval(rimRect, rimPaint);
-		// now the outer rim circle
-		canvas.drawOval(rimRect, rimCirclePaint);
 	}
 	
 	private void drawFace(Canvas canvas) {		
@@ -205,115 +203,47 @@ public final class Variometer extends View {
 	private void drawScale(Canvas canvas) {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		
-		canvas.drawLine(85f, 50f, 95f, 50f, scalePaint);
+		// draw green range 26-36
+		canvas.drawArc(scaleRect, valueToAngle(26f) - 90f, valueToAngle(36f) - valueToAngle(26f), false, scaleGreenPaint);
 		
-		canvas.rotate(100f, 50f, 50f);
-
-		for (int i = 0; i < totalNicks1; ++i) {
-			float y1 = scaleRect.top;
-			float y2 = y1 + 3f;
-			
-			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
-			
-			if (i % 2 == 0) { // every 2
-				canvas.drawLine(50f, y1, 50f, y2 + 2f, scalePaint);
-				
-				float value = nickToValue1(i);
-				String valueString = Integer.toString(Math.abs((int)value));
-				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(- degreesPerNick1 * i - 100, 50f, y2 + 8f);
-				if (!valueString.contentEquals("4"))
-					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
-			}
-			
-			canvas.rotate(degreesPerNick1, 50f, 50f);
-		}
+		canvas.rotate(-105, 50f, 50f);
 		
-		for (int i = 0; i < totalNicks2; ++i) {
+		for (int i = 0; i < totalNicks; ++i) {
 			float y1 = scaleRect.top;
 			float y2 = y1 + 3f;
 			
 			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
 			
 			if (i % 5 == 0) { // every 5
-				canvas.drawLine(50f, y1, 50f, y2 + 2f, scalePaint);
+				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
-				float value = nickToValue2(i);
-				String valueString = Integer.toString(Math.abs((int)value));
-				if (valueString.contentEquals("5"))
-					scalePaint.setTextSize(6f);
+				int value = nickToValue(i);
+				String valueString = Integer.toString(value);
 				
 				// draw vertical text
 				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(- degreesPerNick2 * i - 225, 50f, y2 + 8f);
+				canvas.rotate(105 - degreesPerNick * i, 50f, y2 + 8f);
 				canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				scalePaint.setTextSize(10f);
 				canvas.restore();
 			}
 			
-			canvas.rotate(degreesPerNick2, 50f, 50f);
+			// draw red line at 61 inHg
+			if (i == 51)
+				canvas.drawLine(50f, y1, 50f, y2 + 5f, scaleRedPaint);
+			
+			canvas.rotate(degreesPerNick, 50f, 50f);
 		}
-		
-		for (int i = 0; i <= totalNicks3; ++i) {
-			float y1 = scaleRect.top;
-			float y2 = y1 + 3f;
-			
-			canvas.drawLine(50f, y1, 50f, y2, scalePaint);
-			
-			if (i % 2 == 0) { // every 2
-				canvas.drawLine(50f, y1, 50f, y2 + 2f, scalePaint);
-				
-				float value = nickToValue3(i);
-				String valueString = Integer.toString(Math.abs((int)value));
-				
-				// draw vertical text
-				canvas.save(Canvas.MATRIX_SAVE_FLAG);
-				canvas.rotate(- degreesPerNick3 * i - 315, 50f, y2 + 8f);
-				if (!valueString.contentEquals("4"))
-					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
-				canvas.restore();
-			}
-			
-			canvas.rotate(degreesPerNick3, 50f, 50f);
-		}
-		
 		canvas.restore();		
 	}
 	
-	private float nickToValue1(int nick) {
-		float shiftedValue =  minValue1 + nick * (maxValue1 - minValue1) / totalNicks1;
-		return shiftedValue;
-	}
-	
-	private float nickToValue2(int nick) {
-		float shiftedValue =  minValue2 + nick * (maxValue2 - minValue2) / totalNicks2;
-		if (Math.abs(shiftedValue) < 1f)
-			shiftedValue = shiftedValue * 10f;
-		return shiftedValue;
-	}
-	
-	private float nickToValue3(int nick) {
-		float shiftedValue =  minValue3 + nick * (maxValue3 - minValue3) / totalNicks3;
-		return shiftedValue;
+	private int nickToValue(int nick) {
+		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
+		return rawValue;
 	}
 	
 	private float valueToAngle(float value) {
-		float angle = 0f;
-		if (value < maxValue1) {
-			float valuePerNick = (float)(maxValue1 - minValue1) / totalNicks1;
-			angle =  degreesPerNick1 * (value - minValue1) / valuePerNick + 100f;
-		} else if (value < maxValue2) {
-			float valuePerNick = (float)(maxValue2 - minValue2) / totalNicks2;
-			angle =  degreesPerNick2 * (value - minValue2) / valuePerNick + 125f + 100f;
-		} else {
-			float valuePerNick = (float)(maxValue3 - minValue3) / totalNicks3;
-			angle =  degreesPerNick3 * (value - minValue3) / valuePerNick + 215f + 100f;
-		}
-		
-		return angle;
+		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
+		return degreesPerNick * (value - minValue) / valuePerNick - 105;
 	}
 	
 	private void drawTitle(Canvas canvas) {
@@ -374,12 +304,12 @@ public final class Variometer extends View {
 		drawScale(backgroundCanvas);
 		drawTitle(backgroundCanvas);		
 	}
-
-	public void setVariometer(float value) {
-		if (value < minValue1) {
-			value = minValue1;
-		} else if (value > maxValue3) {
-			value = maxValue3;
+		
+	public void setManifold(float value) {
+		if (value < minValue) {
+			value = minValue;
+		} else if (value > maxValue) {
+			value = maxValue;
 		}
 		handPosition = value;
 		invalidate();
