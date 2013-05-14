@@ -236,21 +236,21 @@ public final class RadioCompass extends View {
 	private void drawPointers(Canvas canvas) {
 		float handAngle = valueToAngle(coursePointer1);
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(-compassHeading + handAngle, 50f, 50f);
+		canvas.rotate(handAngle, 50f, 50f);
+		canvas.drawLine(50f, 10f, 50f, 90f, handPaint);
+		canvas.drawLine(50f, 10f, 48f, 20f, handPaint);
+		canvas.drawLine(50f, 10f, 52f, 20f, handPaint);
+		canvas.restore();
+		
+		handAngle = valueToAngle(coursePointer2);
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(handAngle, 50f, 50f);
 		canvas.drawLine(47f, 30f, 47f, 70f, handPaint);
 		canvas.drawLine(53f, 30f, 53f, 70f, handPaint);
 		canvas.drawLine(45f, 30f, 55f, 30f, handPaint);
 		canvas.drawLine(45f, 30f, 50f, 25f, handPaint);
 		canvas.drawLine(55f, 30f, 50f, 25f, handPaint);
 		canvas.drawLine(50f, 10f, 50f, 25f, handPaint);
-		canvas.restore();
-		
-		handAngle = valueToAngle(coursePointer2);
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(-compassHeading + handAngle, 50f, 50f);
-		canvas.drawLine(50f, 10f, 50f, 90f, handPaint);
-		canvas.drawLine(50f, 10f, 48f, 20f, handPaint);
-		canvas.drawLine(50f, 10f, 52f, 20f, handPaint);
 		canvas.restore();
 	}
 
