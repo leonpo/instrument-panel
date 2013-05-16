@@ -27,7 +27,6 @@ public final class FuelGauge extends View {
 	private Paint facePaint;
 	
 	private Paint scalePaint;
-	private Paint scaleRedPaint;
 	private RectF scaleRect;
 	
 	private Paint titlePaint;	
@@ -40,10 +39,10 @@ public final class FuelGauge extends View {
 	private Bitmap background; // holds the cached static part
 	
 	// scale configuration
-	private static final int totalNicks = 80;
-	private static final float degreesPerNick = 330.0f / totalNicks;	
-	private static final int minValue = 0;
-	private static final int maxValue = 15;
+	private static final int totalNicks = 75;
+	private static final float degreesPerNick = 330.0f / totalNicks;
+	private static final float minValue = 0f;
+	private static final float maxValue = 15f;
 	
 	// hand dynamics
 	private float handPosition = 6f;
@@ -127,12 +126,6 @@ public final class FuelGauge extends View {
 		scalePaint.setTypeface(Typeface.SANS_SERIF);
 		scalePaint.setTextAlign(Paint.Align.CENTER);
 		
-		scaleRedPaint = new Paint();
-		scaleRedPaint.setStyle(Paint.Style.STROKE);
-		scaleRedPaint.setColor(Color.RED);
-		scaleRedPaint.setStrokeWidth(2f);
-		scaleRedPaint.setAntiAlias(true);
-		
 		float scalePosition = 3f;
 		scaleRect = new RectF();
 		scaleRect.set(faceRect.left + scalePosition, faceRect.top + scalePosition,
@@ -212,12 +205,12 @@ public final class FuelGauge extends View {
 				canvas.drawLine(50f, y1, 50f, y2 + 1f, scalePaint);
 				
 				if (i % 10 == 0) { // every 10
-					int value = nickToValue(i);
-					String valueString = Integer.toString(value);
+					float value = nickToValue(i);
+					String valueString = Integer.toString((int)value);
 				
 					// draw vertical text
 					canvas.save(Canvas.MATRIX_SAVE_FLAG);
-					canvas.rotate(-degreesPerNick * i + 165, 50f, y2 + 8f);
+					canvas.rotate(-degreesPerNick * i + 165f, 50f, y2 + 8f);
 					canvas.drawText(valueString, 50f, y2 + 10f, scalePaint);
 					canvas.restore();
 				}
@@ -228,13 +221,12 @@ public final class FuelGauge extends View {
 		canvas.restore();		
 	}
 	
-	private int nickToValue(int nick) {
-		int rawValue = minValue + nick * (maxValue - minValue) / totalNicks;
-		return rawValue;
+	private float nickToValue(int nick) {
+		return  minValue + nick * (maxValue - minValue) / totalNicks;
 	}
 	
 	private float valueToAngle(float value) {
-		float valuePerNick = (float)(maxValue - minValue) / totalNicks;
+		float valuePerNick = (maxValue - minValue) / totalNicks;
 		return degreesPerNick * (value - minValue) / valuePerNick - 165f;
 	}
 	

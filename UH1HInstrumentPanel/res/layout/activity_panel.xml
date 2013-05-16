@@ -19,7 +19,7 @@
 	    <com.portman.panel.uh1h.FuelGauge android:id="@+id/fuel_gauge"	   
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" 
-		    android:visibility="gone"/>	
+		    android:visibility="gone"/>
 		<com.portman.panel.uh1h.Torque android:id="@+id/torque" 
 		    android:layout_width="fill_parent" 
 		    android:layout_height="fill_parent" />
