@@ -18,9 +18,9 @@ Start=function(self)
 end,
 
 AfterNextFrame=function(self)
-    local player = LoGetObjectById(LoGetPlayerPlaneId())
+    --local player = LoGetObjectById(LoGetPlayerPlaneId())
 	--print(player.Name)
-	if (player and player.Name == "UH-1H") then
+	--if (player and player.Name == "UH-1H") then
 		-- read from UH-1H main panel instruments
 		local MainPanel = GetDevice(0)
 		local AirspeedNeedle = MainPanel:get_argument_value(117)*150
@@ -43,14 +43,14 @@ AfterNextFrame=function(self)
 		local Oil_Pressure = MainPanel:get_argument_value(113) * 100
 		local Fuel_Pressure = MainPanel:get_argument_value(126) * 50
 		local Fuel_Tank = MainPanel:get_argument_value(239) * 1580.0 / 100.0
-		local VerticalBar = MainPanel:get_argument_value(151) / 0.7
-		local HorisontalBar = MainPanel:get_argument_value(152) / 0.7
+		local VerticalBar = MainPanel:get_argument_value(151) * -2.0
+		local HorisontalBar = MainPanel:get_argument_value(152) * -2.0
 		local ToMarker = MainPanel:get_argument_value(153)
 		local FromMarker = MainPanel:get_argument_value(154)		
 		local RotCourseCard = MainPanel:get_argument_value(156) * 2.0 * math.pi
 		
 		my_send = socket.protect(function()
-			local json = string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CoursePointer1':%.2f, 'CoursePointer2':%.2f, 'CompassHeading':%.2f, 'Torque':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f, 'Fuel_Tank':%.2f,'VericalBar':%.2f,'HorisontalBar':%.2f,'ToMarker':%.2f,'FromMarker':%.2f,'RotCourseCard':%.2f}\n", 
+			local json = string.format("{ 'AirspeedNeedle':%.2f, 'Altimeter_10000_footPtr':%.2f, 'Altimeter_1000_footPtr':%.2f, 'Altimeter_100_footPtr':%.2f, 'Variometer':%.2f, 'TurnNeedle':%.2f, 'Slipball':%.2f, 'CoursePointer1':%.2f, 'CoursePointer2':%.2f, 'CompassHeading':%.2f, 'Torque':%.2f, 'Engine_RPM':%.2f, 'AHorizon_Pitch':%.2f, 'AHorizon_Bank':%.2f, 'GyroHeading':%.2f, 'Oil_Temperature':%.2f, 'Oil_Pressure':%.2f, 'Fuel_Pressure':%.2f, 'Fuel_Tank':%.2f,'VerticalBar':%.2f,'HorisontalBar':%.2f,'ToMarker':%.2f,'FromMarker':%.2f,'RotCourseCard':%.2f}\n", 
 				AirspeedNeedle, 
 				Altimeter_10000_footPtr, 
 				Altimeter_1000_footPtr, 
@@ -80,7 +80,7 @@ AfterNextFrame=function(self)
 			socket.try(udp:sendto(json, host2, port2))
 		end) -- my_send
 		my_send()
-	end -- if UH-1H	
+	--end -- if UH-1H	
 end,
 
 

@@ -52,6 +52,10 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:visibility="gone"/>
+        <com.portman.panel.uh1h.DirectionalGyro  android:id="@+id/directional_gyro"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone"/>
 	</LinearLayout>
 	<LinearLayout android:orientation="vertical" 
 	    android:layout_height="fill_parent" 

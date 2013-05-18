@@ -52,7 +52,7 @@ public class PanelActivity extends Activity implements OnClickListener {
 		mTurnIndicator = (TurnIndicator) findViewById(R.id.turn_indicator);
 		mArtificialHorizon = (ArtificialHorizon) findViewById(R.id.artificial_horizon);
 		mRadioCompass = (RadioCompass) findViewById(R.id.radio_compass);
-		//mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
+		mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
 		mVariometer = (Variometer) findViewById(R.id.variometer);
 	   	mFuelGauge = (FuelGauge) findViewById(R.id.fuel_gauge);
         mCourseDeviation = (CourseDeviation) findViewById(R.id.course_deviation);
@@ -62,6 +62,7 @@ public class PanelActivity extends Activity implements OnClickListener {
 	   	mFuelGauge.setOnClickListener(this);
         mRadioCompass.setOnClickListener(this);
         mCourseDeviation.setOnClickListener(this);
+        mDirectionalGyro.setOnClickListener(this);
 
 	   	this.myCommsThread = new Thread(new CommsThread());
 	   	this.myCommsThread.start();
@@ -83,6 +84,10 @@ public class PanelActivity extends Activity implements OnClickListener {
         }
         else if (v instanceof CourseDeviation) {
             mCourseDeviation.setVisibility(View.GONE);
+            mDirectionalGyro.setVisibility(View.VISIBLE);
+        }
+        else if (v instanceof DirectionalGyro) {
+            mDirectionalGyro.setVisibility(View.GONE);
             mRadioCompass.setVisibility(View.VISIBLE);
         }
 	}
@@ -127,7 +132,7 @@ public class PanelActivity extends Activity implements OnClickListener {
 				   	mVariometer.setVariometer((float)object.getDouble("Variometer")/1000f);
 				   	//mEngineGauge.setValues((float)object.getDouble("Oil_Temperature"), (float)object.getDouble("Oil_Pressure"), (float)object.getDouble("Fuel_Pressure"));
 				   	mFuelGauge.setFuel((float)object.getDouble("Fuel_Tank"));
-				   	//mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
+				   	mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
                     mCourseDeviation.setDeviation((float)object.getDouble("VerticalBar"),
                             (float)object.getDouble("HorisontalBar"),
                             (int)object.getDouble("ToMarker"),
