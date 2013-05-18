@@ -35,6 +35,7 @@ public class PanelActivity extends Activity implements OnClickListener {
 	private static Variometer  mVariometer;
 	private static FuelGauge mFuelGauge; 
 	private static RadioCompass mRadioCompass;
+    private static CourseDeviation mCourseDeviation;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,27 +54,37 @@ public class PanelActivity extends Activity implements OnClickListener {
 		mRadioCompass = (RadioCompass) findViewById(R.id.radio_compass);
 		//mDirectionalGyro = (DirectionalGyro) findViewById(R.id.directional_gyro);
 		mVariometer = (Variometer) findViewById(R.id.variometer);
-	   	mFuelGauge = (FuelGauge) findViewById(R.id.fuel_gauge); 
-	   	
-	   
+	   	mFuelGauge = (FuelGauge) findViewById(R.id.fuel_gauge);
+        mCourseDeviation = (CourseDeviation) findViewById(R.id.course_deviation);
+
 	   	// set click handlers
 	   	mRPM.setOnClickListener(this);
-	   	mFuelGauge.setOnClickListener(this);   
-	  	 
+	   	mFuelGauge.setOnClickListener(this);
+        mRadioCompass.setOnClickListener(this);
+        mCourseDeviation.setOnClickListener(this);
+
 	   	this.myCommsThread = new Thread(new CommsThread());
 	   	this.myCommsThread.start();
 	}
    
 	// Implement the OnClickListener callback
 	public void onClick(View v) {
-		if (mRPM.getVisibility() == View.VISIBLE) { // show engine gauges
+        if (v instanceof RPM) {
 			mRPM.setVisibility(View.GONE);
 			mFuelGauge.setVisibility(View.VISIBLE);
 		} 
-		else if (mFuelGauge.getVisibility() == View.VISIBLE) {
+		else if (v instanceof FuelGauge) {
 			mFuelGauge.setVisibility(View.GONE);
 			mRPM.setVisibility(View.VISIBLE);		   
 		}
+        else if (v instanceof RadioCompass) {
+            mRadioCompass.setVisibility(View.GONE);
+            mCourseDeviation.setVisibility(View.VISIBLE);
+        }
+        else if (v instanceof CourseDeviation) {
+            mCourseDeviation.setVisibility(View.GONE);
+            mRadioCompass.setVisibility(View.VISIBLE);
+        }
 	}
  
 	@Override
@@ -108,7 +119,8 @@ public class PanelActivity extends Activity implements OnClickListener {
 					mRPM.setRPM((float)object.getDouble("Engine_RPM")/100f);
 					mTurnIndicator.setTurnNeedlePosition((float)object.getDouble("TurnNeedle"));
 					mTurnIndicator.setSlipballPosition((float)object.getDouble("Slipball"));
-					mArtificialHorizon.setPitchAndBank((float)object.getDouble("AHorizon_Pitch"), (float)object.getDouble("AHorizon_Bank"));
+					mArtificialHorizon.setPitchAndBank((float)object.getDouble("AHorizon_Pitch"),
+                            (float)object.getDouble("AHorizon_Bank"));
 				   	mRadioCompass.setHeading((float)object.getDouble("CoursePointer1"),
 				   			(float)object.getDouble("CoursePointer2"),
 				   			(float)object.getDouble("CompassHeading"));
@@ -116,6 +128,11 @@ public class PanelActivity extends Activity implements OnClickListener {
 				   	//mEngineGauge.setValues((float)object.getDouble("Oil_Temperature"), (float)object.getDouble("Oil_Pressure"), (float)object.getDouble("Fuel_Pressure"));
 				   	mFuelGauge.setFuel((float)object.getDouble("Fuel_Tank"));
 				   	//mDirectionalGyro.setGyroHeading((float)object.getDouble("GyroHeading"));
+                    mCourseDeviation.setDeviation((float)object.getDouble("VerticalBar"),
+                            (float)object.getDouble("HorisontalBar"),
+                            (int)object.getDouble("ToMarker"),
+                            (int)object.getDouble("FromMarker"),
+                            (float)object.getDouble("RotCourseCard"));
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -46,7 +46,12 @@
 		    android:layout_height="fill_parent" />
 		<com.portman.panel.uh1h.RadioCompass  android:id="@+id/radio_compass"
 		    android:layout_width="fill_parent" 
-		    android:layout_height="fill_parent" />
+		    android:layout_height="fill_parent"
+            android:visibility="visible"/>
+        <com.portman.panel.uh1h.CourseDeviation  android:id="@+id/course_deviation"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone"/>
 	</LinearLayout>
 	<LinearLayout android:orientation="vertical" 
 	    android:layout_height="fill_parent" 
